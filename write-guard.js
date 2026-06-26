@@ -38,7 +38,7 @@ function getFileHash(filePath) {
 }
 
 function getLockFilePath(filePath) {
-  const relativePath = path.relative(ROOT, filePath).replace(/[\/\]/g, '_');
+  const relativePath = path.relative(ROOT, filePath).replace(/[\\\/]/g, '_');
   return path.join(LOCK_DIR, relativePath + '.lock');
 }
 

@@ -49,3 +49,4 @@ npm list -g --depth=0
 - [[bb-browser]] — bb-browser 详细文档
 - [[reasonix]] — Reasonix 详细文档
 - [[image-gen]] — mimo-cli 用于看图
+- [[02-knowledge/tools-overview]] — 上级/相关页面

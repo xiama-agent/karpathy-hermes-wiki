@@ -1,10 +1,11 @@
 ---
-type: candidate_knowledge
-status: pending
-source: auto_extracted
-extracted_at: 2026-06-26T09:33:45.876159+00:00
-session: 20260626_172621_97bf62
-confidence: low
+id: HERMES-FACT-002
+title: 系统性能差距分析
+type: fact
+tags: [performance, gap-analysis, system-capability]
+trust: 0.3
+source: auto_extracted from transform hook
+last_updated: 2026-06-26
 ---
 
 # 知识候选 (20260626-093345)
@@ -31,3 +32,6 @@ confidence: low
 - 来源: LLM transform hook
 - 上下文: 自动捕获
 
+
+## 相关链接
+- [[04-facts/general]] — 上级/相关页面

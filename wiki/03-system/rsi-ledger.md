@@ -118,3 +118,6 @@ SELECT COUNT(*) FROM facts WHERE tags LIKE '%rsi_ledger%'
 ```
 
 可选字段（视情况加）：`prevention-rule`、`related-tasks`、`commit-hash`。
+
+## 相关链接
+- [[00-core/triggers]] — 上级/相关页面

@@ -106,7 +106,7 @@ function extractKnowledgeFromResult(resultInfo) {
     const lines = resultInfo.deployment.split(/[\n\r]+/);
     for (const line of lines) {
       const cleanLine = line.trim();
-      if (cleanLine.length > 5 && (cleanLine.includes('\') || cleanLine.includes('/'))) {
+      if (cleanLine.length > 5 && (cleanLine.includes('\\') || cleanLine.includes('/'))) {
         knowledgeItems.push('路径: ' + cleanLine);
       }
     }

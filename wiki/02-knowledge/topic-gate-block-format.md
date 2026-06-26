@@ -1,10 +1,11 @@
 ---
-type: candidate_knowledge
-status: pending
-source: auto_extracted
-extracted_at: 2026-06-26T09:27:14.557334+00:00
-session: 20260626_132754_4fe4e2
-confidence: low
+id: HERMES-KNOWLEDGE-001
+title: Topic-Gate Block 格式要求
+type: knowledge
+tags: [format, structure, documentation]
+trust: 0.3
+source: auto_extracted from transform hook
+last_updated: 2026-06-26
 ---
 
 # 知识候选 (20260626-092714)
@@ -16,3 +17,6 @@ confidence: low
 - 来源: LLM transform hook
 - 上下文: 自动捕获
 
+
+## 相关链接
+- [[00-core/triggers]] — 上级/相关页面

@@ -48,3 +48,4 @@ last_updated: 2026-06-26
 - [[identity]] — 核心身份
 - [[communication]] — 沟通偏好完整版
 - [[budget]] — 预算详情
+- [[03-system/private-info-policy]] — 隐私信息处理策略

@@ -177,7 +177,7 @@ function handleDegradedMode(level) {
     case 3: // 紧急模式
       console.log('🚨 紧急模式: 系统严重损坏');
       console.log('🔧 建议: 从备份恢复');
-      console.log('💾 备份位置: D:\ai_schedule\backup\');
+      console.log('💾 备份位置: D:\\ai_schedule\\backup\\');
       break;
   }
 }

@@ -28,3 +28,10 @@ last_updated: 2026-06-26
 | Reasonix .env | C:\Users\YANG\AppData\Roaming\reasonix\.env |
 
 
+
+## 相关链接
+- [[02-knowledge/path-validation-iron-rule]] — 路径验证铁律（使用前必验）
+- [[02-knowledge/zhipu-api-key-configuration]] — 智谱 AI API Key / provider 配置
+- [[02-knowledge/model-json-structure]] — model.json 配置结构说明
+- [[02-knowledge/aliyun]] — 阿里云服务器 / SSH 路径
+- [[02-knowledge/semantic-memory]] — 语义记忆系统（含 DB/脚本路径）

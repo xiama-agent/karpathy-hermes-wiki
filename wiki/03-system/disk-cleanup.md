@@ -29,3 +29,4 @@ plugins:
 - [[hermes-hooks]]
 - [[cron-jobs]]
 - [[mcp-plugins]]
+- [[02-knowledge/mcp-plugins]] — 上级/相关页面

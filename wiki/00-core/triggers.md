@@ -49,3 +49,10 @@ last_updated: 2026-06-26
 - [[identity]] — 核心身份
 - [[preferences]] — YANG 偏好
 - 完整规则：`C:\Users\YANG\AppData\Local\hermes\SOUL.md`
+- [[00-core/core-iron-laws]] — 底层铁律与系统边界
+- [[03-system/rsi-ledger]] — RSI 账本（工具失败自我改进）
+- [[03-system/agents-optimization]] — AGENTS.md 优化策略
+- [[02-knowledge/framework-design-iron-rules-guide]] — 框架设计与铁律创建指南
+- [[02-knowledge/boundary-analysis-checklist]] — 边界分析检查清单
+- [[02-knowledge/topic-gate-block-format]] — Topic-Gate Block 格式要求
+- [[02-knowledge/workflow-router-knowledge]] — 工作流路由系统设计

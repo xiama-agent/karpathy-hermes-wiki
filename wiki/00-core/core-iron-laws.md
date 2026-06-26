@@ -1,10 +1,11 @@
 ---
-type: candidate_knowledge
-status: pending
-source: auto_extracted
-extracted_at: 2026-06-26T09:51:21.770163+00:00
-session: 20260626_132754_4fe4e2
-confidence: low
+id: HERMES-CORE-001
+title: 底层铁律与系统边界
+type: rule
+tags: [core-principles, system-boundary, iron-laws]
+trust: 0.3
+source: auto_extracted from transform hook
+last_updated: 2026-06-26
 ---
 
 # 知识候选 (20260626-095121)
@@ -21,3 +22,6 @@ confidence: low
 - 来源: LLM transform hook
 - 上下文: 自动捕获
 
+
+## 相关链接
+- [[00-core/triggers]] — 上级/相关页面

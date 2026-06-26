@@ -43,3 +43,4 @@ last_updated: 2026-06-26
 - [[desktop]] — 文件管理
 - [[projects]] — 项目清单
 - [[communication]] — 沟通偏好
+- [[02-knowledge/self-media]] — 自媒体工作流（媒体龙虾分工）

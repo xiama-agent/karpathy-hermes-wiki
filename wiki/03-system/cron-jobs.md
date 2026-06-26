@@ -28,3 +28,8 @@ last_updated: 2026-06-26
 - 记忆系统体检：扫描死链/重复/过期/矛盾
 
 
+
+## 相关链接
+- [[03-system/auto-tasks]] — auto-tasks 自动任务
+- [[03-system/backup]] — 备份体系（每日自动备份 cron）
+- [[02-knowledge/lint-to-wiki-automation]] — Lint 到 Wiki 自动化流程

@@ -1,10 +1,11 @@
 ---
-type: candidate_knowledge
-status: pending
-source: auto_extracted
-extracted_at: 2026-06-26T09:53:08.177501+00:00
-session: 20260626_132754_4fe4e2
-confidence: low
+id: HERMES-SYSTEM-001
+title: AGENTS.md优化策略
+type: system
+tags: [optimization, agents, task-priority]
+trust: 0.3
+source: auto_extracted from transform hook
+last_updated: 2026-06-26
 ---
 
 # 知识候选 (20260626-095308)
@@ -21,3 +22,6 @@ confidence: low
 - 来源: LLM transform hook
 - 上下文: 自动捕获
 
+
+## 相关链接
+- [[00-core/triggers]] — 上级/相关页面

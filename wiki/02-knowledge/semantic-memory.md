@@ -18,3 +18,6 @@ last_updated: 2026-06-26
 - **DB路径**：`~/.hermes/semantic_memory.db`
 
 
+
+## 相关链接
+- [[02-knowledge/paths]] — 上级/相关页面

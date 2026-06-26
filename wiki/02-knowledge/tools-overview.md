@@ -27,3 +27,16 @@ OCR脚本（D:\Tools\HermesScripts\ocr.py）、PaddleOCR、ffmpeg（D:\Tools\ffm
 - TEMP：D:\Temp
 
 
+
+## 相关链接
+- [[02-knowledge/npm-global]] — npm 全局工具清单（codegraph/mimo/agent-browser 等）
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/hermes-tool-independence]] — Hermes 工具独立性架构
+- [[02-knowledge/codex-cli-knowledge-base]] — Codex CLI 知识库与使用指南
+- [[02-knowledge/markitdown]] — MarkItDown 文档转换（venv）
+- [[02-knowledge/vision-ocr]] — 视觉与 OCR 能力
+- [[02-knowledge/persistent-memory-tool-selection]] — 持久化记忆与工具选择指南
+- [[02-knowledge/minimax-m3]] — MiniMax M3 集成（外部 AI 服务）
+- [[02-knowledge/model-capabilities-comparison]] — AI 模型能力对比与使用场景
+- [[02-knowledge/zhipu-code-repair-analysis]] — 智谱 AI 代码修复能力评估
+- [[02-knowledge/system-integration-evaluation]] — 系统集成评估标准

@@ -104,7 +104,7 @@ type: knowledge
 tags: [novel, methodology, twentythree-fire]
 trust: 0.95
 use_cases: ["二十三火", "逆向设计法", "小说大纲方法论"]
-source: fact_store#14, novel-rules.md
+source: novel-rules.md
 last_updated: 2026-06-26
 ---
 

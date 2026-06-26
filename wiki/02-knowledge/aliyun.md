@@ -19,3 +19,6 @@ last_updated: 2026-06-26
 - 不支持：桌面画面查看（无VNC/RDP）
 
 
+
+## 相关链接
+- [[02-knowledge/paths]] — 上级/相关页面

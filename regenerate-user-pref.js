@@ -3,10 +3,11 @@
 
 const fs = require('fs');
 
-const FACT_STORE = 'D:\\ai_schedule\\backup\\hermes-pre-wiki-rebuild-20260626-124508\\snapshot-baseline\\fact_store_export.json';
+// 旧备份路径（v3.0 迁移时的 fact_store 快照）
+const BACKUP_EXPORT_PATH = 'D:\\ai_schedule\\backup\\hermes-pre-wiki-rebuild-20260626-124508\\snapshot-baseline\\fact_store_export.json';
 const TARGET = 'D:\\ai_schedule\\hermes-brain\\wiki\\04-facts\\user_pref.md';
 
-const data = JSON.parse(fs.readFileSync(FACT_STORE, 'utf8'));
+const data = JSON.parse(fs.readFileSync(BACKUP_EXPORT_PATH, 'utf8'));
 const userPrefFacts = data.filter(f => f.category === 'user_pref');
 console.log(`Found ${userPrefFacts.length} user_pref facts`);
 
@@ -19,7 +20,7 @@ type: fact-collection
 tags: [facts, user_pref]
 trust: ${TRUST}
 use_cases: ["查询 YANG 用户偏好类事实", "YANG 提到偏好相关"]
-source: fact_store_export.json (备份) + manual activation 2026-06-26
+source: fact_store_export.json (v3.0 备份) + manual activation 2026-06-26
 last_updated: 2026-06-26
 ---
 

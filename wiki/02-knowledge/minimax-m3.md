@@ -29,3 +29,6 @@ last_updated: 2026-06-26
 - 支持 web_search 参数（联网搜索）
 
 
+
+## 相关链接
+- [[02-knowledge/tools-overview]] — 上级/相关页面
