@@ -1,1 +1,30 @@
+# Obsidian 配置 (本地应用配置, 不入库)
 wiki/.obsidian/
+
+# 候选隔离区 (transform hook 自动生成, 14 天后自动清)
+# v3.1.5: 用 gitignore 而非 commit 再清, 避免每日新增 candidate 污染 git log
+wiki/99-temp/candidates-*.md
+wiki/99-temp/missed-recall-*.md
+wiki/99-temp/lint-*.md
+
+# Node / Python 临时
+*.pyc
+__pycache__/
+node_modules/
+.sqlite_tmp/
+
+# v3.1.0 时代的一次性修复脚本 (已被 lint.js/recall.js 替代)
+# v3.1.5: 保留在磁盘以防万一, 但不入 git
+activate-trust.js
+fix-orphans.js
+fix-trust.js
+regenerate-user-pref.js
+wiki-link-builder.js
+fix-dead-links.js
+hermes-wiki-*.ps1
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+*.swp
+*.bak

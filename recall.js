@@ -40,6 +40,25 @@ function searchInFile(filePath, query) {
       return extractHit(filePath, content, lowerQ);
     }
 
+    // Multi-word AND match: split query on space, all words must hit (anywhere)
+    const words = query.split(/\s+/).filter(w => w.length >= 2);
+    if (words.length >= 2) {
+      const positions = [];
+      for (const w of words) {
+        const idx = lower.indexOf(w.toLowerCase());
+        if (idx < 0) {
+          positions.length = 0;
+          break;
+        }
+        positions.push({ idx, word: w });
+      }
+      if (positions.length > 0) {
+        // Use earliest position
+        positions.sort((a, b) => a.idx - b.idx);
+        return extractHit(filePath, content, positions[0].word);
+      }
+    }
+
     // Chinese bigram match: split query into 2-char substrings, match if ANY bigram found
     const chineseChars = (query.match(/[\u4e00-\u9fa5]/g) || []);
     if (chineseChars.length >= 2) {
@@ -66,6 +85,13 @@ function searchInFile(filePath, query) {
       if (hitCount > 0) {
         return extractHit(filePath, content, firstHit.snippet);
       }
+    }
+
+    // Single English word: also try word-boundary match (more precise)
+    if (/^[a-z][a-z0-9_-]+$/i.test(query)) {
+      const re = new RegExp('\\b' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+      const m = re.exec(content);
+      if (m) return extractHit(filePath, content, m[0]);
     }
   } catch (e) {}
   return null;
@@ -134,8 +160,59 @@ function recall(opts) {
   // Update retrieval_count in frontmatter (mock - real feedback is via fact_feedback)
   if (top.length === 0) {
     console.log('NO HITS. Consider creating a new wiki page for this query.');
-    console.log('Append to wiki/99-temp/missed-recall-' + new Date().toISOString().slice(0, 10) + '.md');
+    logMissedRecall(opts.query);
   }
+}
+
+// ===== v3.1.5 新增：召回失败自动记录 (missed-recall + RSI hook) =====
+function logMissedRecall(query) {
+  const today = new Date().toISOString().slice(0, 10);
+  const missedFile = path.join(ROOT, 'wiki', '99-temp', `missed-recall-${today}.md`);
+
+  // 1. 写入/追加 missed-recall-{date}.md
+  let md = '';
+  if (fs.existsSync(missedFile)) {
+    md = fs.readFileSync(missedFile, 'utf8');
+    if (!md.endsWith('\n')) md += '\n';
+  } else {
+    md = `# Missed Recall — ${today}\n\n> 由 \`recall.js\` 自动记录。每次召回失败时追加。\n\n`;
+  }
+  const time = new Date().toTimeString().slice(0, 8);
+  md += `- \`${time}\` query="${query}"\n`;
+  fs.writeFileSync(missedFile, md, 'utf8');
+  console.log(`📝 Logged to: ${path.relative(ROOT, missedFile)}`);
+
+  // 2. 每天第一次写入时,同步追加一条 RSI 到 rsi-ledger.md
+  const rsiFile = path.join(ROOT, 'wiki', '03-system', 'rsi-ledger.md');
+  const patternKey = `recall-missed-${today}`;
+  if (fs.existsSync(rsiFile)) {
+    const rsiContent = fs.readFileSync(rsiFile, 'utf8');
+    if (!rsiContent.includes(patternKey)) {
+      appendRsiEntry(rsiFile, today, patternKey, query);
+      console.log(`📊 RSI entry added: ${patternKey}`);
+    }
+  }
+}
+
+function appendRsiEntry(rsiFile, date, patternKey, sampleQuery) {
+  let content = fs.readFileSync(rsiFile, 'utf8');
+  const entry = `
+### ${date} {${patternKey}}
+
+- **error**: Wiki 召回失败,query 无对应页面（样例: \`${sampleQuery.slice(0, 60)}\`）
+- **root-cause**: Wiki 知识缺口 — 现有页面无法覆盖用户查询
+- **fix**: review \`wiki/99-temp/missed-recall-${date}.md\` 看当天所有 query,如反复出现同样 query 集群 → 新建对应 wiki 页面
+- **status**: monitoring
+- **recurrence**: 见 missed-recall 文件计数
+`;
+  // 插到 "## 🔧 自动处理规则" 之前
+  const marker = '## 🔧 自动处理规则';
+  if (content.includes(marker)) {
+    content = content.replace(marker, entry.trimStart() + '\n\n' + marker);
+  } else {
+    content += '\n' + entry;
+  }
+  fs.writeFileSync(rsiFile, content, 'utf8');
 }
 
 // Main

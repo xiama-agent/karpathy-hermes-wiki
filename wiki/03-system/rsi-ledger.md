@@ -75,6 +75,15 @@ SELECT COUNT(*) FROM facts WHERE tags LIKE '%rsi_ledger%'
 
 ---
 
+### 2026-06-26 {recall-missed-2026-06-26}
+
+- **error**: Wiki 召回失败,query 无对应页面（样例: `xyznonexistent_query_for_test_987654`）
+- **root-cause**: Wiki 知识缺口 — 现有页面无法覆盖用户查询
+- **fix**: review `wiki/99-temp/missed-recall-2026-06-26.md` 看当天所有 query,如反复出现同样 query 集群 → 新建对应 wiki 页面
+- **status**: monitoring
+- **recurrence**: 见 missed-recall 文件计数
+
+
 ## 🔧 自动处理规则（v3.1.4 修正版）
 
 **原 SOUL.md 规则 36 "RSI 自动追踪+晋升"** —— 已确认代码路径未实现，规则保留但**实际追踪**改为：

@@ -53,3 +53,6 @@ last_updated: 2026-06-26
 ---
 
 **本文件由 hermes 自检过程自动生成。下次 Lint 时检查状态。**
+- `16:04:23` query="xyznonexistent_query_for_test_987654"
+- `16:04:38` query="another_missing_query_for_test_555_xyz"
+- `16:21:05` query="test query"

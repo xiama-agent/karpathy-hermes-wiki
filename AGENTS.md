@@ -55,6 +55,27 @@
 约束：违反此条 → 路径答案不可信（v3.1.4 因凭印象回答 ~/.hermes 路径翻车）
 ```
 
+### 1.2.2 关键词预读映射（v3.1.5 新增）
+
+当 YANG 提问命中以下关键词时，**自动预读**对应页面（不等下次召回失败再补救）：
+
+```
+触发：YANG 提问含关键词 → 自动 Read 对应页面（即使 INDEX 没列也读）
+规则：
+  - "路径/目录/在哪/存哪"  → wiki/02-knowledge/paths.md + paths-conventions.md
+  - "MCP/插件/plugin"       → wiki/02-knowledge/mcp-plugins.md
+  - "npm/全局/工具/工具安装" → wiki/02-knowledge/npm-global.md
+  - "小说/网文/写作/人设/剧情" → wiki/02-knowledge/novel-rules.md
+  - "AI 调度/Mavis/派单"    → wiki/02-knowledge/ai-schedule.md + 03-system/schedule-protocol.md
+  - "备份/git/版本"         → wiki/03-system/backup.md
+  - "cron/定时/任务计划"    → wiki/03-system/cron-jobs.md
+  - "skill/SKILL.md"        → 跑 skill-extract.js <name>
+  - "月预算/钱/订阅"        → wiki/01-yang/budget.md
+  - "形象/头像/自拍"        → wiki/01-yang/desktop.md (桌面是 D 盘)
+  - "AGENTS/操作手册/规则"   → 本文件 (循环预读警告: 不要因为问规则就读本文件)
+约束: 同一会话内已读过的页面不重复读
+```
+
 ### 1.3 召回失败兜底（小模型回退开关）
 
 ```
@@ -64,6 +85,10 @@
   2. 用这 7 条兜底回答
   3. 把"失败的事实关键词"记到 wiki/99-temp/missed-recall-{date}.md
   4. 下次 Lint 时检查是否需要新建对应页面
+自动关闭 (v3.1.5 新增):
+  - missed-recall 文件超过 14 天未处理 → 自动关闭 (重命名为 missed-recall-{date}-closed.md)
+  - 关闭前 lint.js 在 lint-{date}.md 列"建议新建页面"清单
+  - 14 天后仍无处理 → 真删 (但 lint-{date}.md 保留 30 天兜底)
 ```
 
 ### 1.4 召回成功后必须 fact_feedback
@@ -74,6 +99,11 @@
   1. 找到该事实所在页面（wiki/04-facts/{category}.md）
   2. 更新该条 frontmatter：trust += 0.1，retrieval_count += 1
   3. 不跳过不拖，这是 trust 系统运转的最小闭环
+工具 (v3.1.5 新增):
+  node D:\ai_schedule\hermes-brain\update-trust.js <fact-id> <delta>
+  例: node update-trust.js HERMES-FACT-002 +0.1
+  - 自动找 frontmatter 中 id 匹配的行, 更新 trust + retrieval_count
+  - 没找到 → 报错并列出当前所有 fact id
 ```
 
 ---
@@ -90,7 +120,8 @@
   - ❌ 随口说的 / 一次性指令 / 我的猜测 / 临时状态 → 跳过，不写
 
 关卡 2：写入隔离期
-  - 通过关卡 1 但未满足以上三条 → 先写 wiki/99-temp/candidate-{date}.md
+  - 通过关卡 1 但未满足以上三条 → 先写 wiki/99-temp/candidate-*.md
+  - v3.1.5 命名约定: `candidates-{YYYYMMDD-HHMMSS}.md` (transform hook) 或 `candidate-skill-{name}-{date}.md` (skill-extract) 或 `candidate-{date}.md` (手动)
   - 隔离 14 天，期间 INDEX 不指向它
 
 关卡 3：自动升级
@@ -108,7 +139,7 @@
 | 工具/MCP/skill 操作流程 | `wiki/02-knowledge/{tool}.md` | 一个工具一页 |
 | 系统配置/cron/hook | `wiki/03-system/{system}.md` | 一个系统一页 |
 | 单条事实（路径/项目/参考） | `wiki/04-facts/{category}.md` | 按 user_pref/project/tool/general 分类聚合 |
-| 临时/未验证 | `wiki/99-temp/{purpose}-{date}.md` | 14 天后清理或升级 |
+| 临时/未验证 | `wiki/99-temp/{purpose}-{date}.md` 或 `candidate-*.md` | 14 天后清理或升级 |
 
 ### 2.3 写入格式（强制）
 
@@ -327,6 +358,26 @@ last_updated: YYYY-MM-DD
 
 ---
 
+## 第 9 章：已废弃脚本清单（v3.1.5 新增）
+
+| 文件 | 状态 | 替代品 | 备注 |
+|------|------|--------|------|
+| `cron_jobs/auto-commit.py.disabled` | ✅ 已替代 | `cron_jobs/auto-commit.js` (v3.1.5) | Node.js 版, 修复路径 HERMES_HOME→BRAIN_ROOT |
+| `scripts/corrections.py.disabled` | 🟡 部分替代 | topic-gate plugin `pre_llm_call_gate` | 实时记录到 99-temp/corrections/ |
+| `scripts/corrections-extractor.py.disabled` | ❌ 永久废弃 | 手动 review 99-temp/corrections/ 升级 | 周扫描升级机制无人用, 取消 |
+| `scripts/knowledge-extractor.py.disabled` | 🟡 部分替代 | `skill-extract.js` (v3.1.5) | 替代"日志→候选"路径, 但 skill-extract 只针对 skills/ |
+| `scripts/link_facts_to_wiki.py.disabled` | ❌ 永久废弃 | (无) | fact_store 已熔断, 无 2-way link 需求 |
+| `scripts/memory_retriever.py.disabled` | 🟡 部分替代 | `recall.js` (v3.1.4) | 跨层检索统一入口 |
+| `scripts/wiki_lint.py.disabled` | 🟡 部分替代 | `lint.js` (v3.1.4) | Node.js 版 |
+| `scripts/projects.py.disabled` | ❌ 永久废弃 | (无) | 项目管理走 01-yang/projects.md |
+| `scripts/fact_trust_boost.py` | 🟡 可保留 | `update-trust.js` (v3.1.5) | Python 版, 新的 Node.js 版更轻量 |
+| `scripts/setup_auto_commit_task.ps1` | ✅ 保留 | — | 一次性注册脚本 (admin 权限) |
+
+**永久废弃的不要复活**——一旦取消就别再写新替代品, 除非 YANG 明确要求。
+
+
+---
+
 ## 附录 A：核心路径速查
 
 | 用途 | 路径 |
@@ -340,7 +391,7 @@ last_updated: YYYY-MM-DD
 | 临时隔离区 | `D:\ai_schedule\hermes-brain\wiki\99-temp\` |
 | 备份根 | `D:\ai_schedule\backup\` |
 | 宪法（不可改） | `C:\Users\YANG\AppData\Local\hermes\SOUL.md` |
-| 旧 fact_store（只读兜底） | `C:\Users\YANG\AppData\Local\hermes\memory_store.db.legacy` |
+| 旧 fact_store（已删除 v3.1.5, 04-facts/ 接管） | ~~`C:\Users\YANG\AppData\Local\hermes\memory_store.db.legacy`~~ |
 
 ---
 

@@ -24,7 +24,7 @@ last_updated: 2026-06-26
 - **category**: user_pref
 - **tags**: identity,core,second-brain/01-yang/profile
 - **trust**: 0.7
-- **retrieval_count**: 0
+- **retrieval_count**: 3
 - **helpful_count**: 1
 - **created**: 2026-06-15 05:55:18
 - **updated**: 2026-06-25 17:22:38
