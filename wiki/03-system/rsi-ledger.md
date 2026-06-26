@@ -84,6 +84,15 @@ SELECT COUNT(*) FROM facts WHERE tags LIKE '%rsi_ledger%'
 - **recurrence**: 见 missed-recall 文件计数
 
 
+### 2026-06-26 {tool-failure-2026-06-26-193759}
+
+- **error**: 测试错误信息
+- **root-cause**: 测试根因分析
+- **fix**: 测试修复方案
+- **status**: monitoring
+- **source**: rsi-log.js 自动记录
+
+
 ## 🔧 自动处理规则（v3.1.4 修正版）
 
 **原 SOUL.md 规则 36 "RSI 自动追踪+晋升"** —— 已确认代码路径未实现，规则保留但**实际追踪**改为：

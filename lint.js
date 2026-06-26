@@ -100,7 +100,7 @@ function lintOrphanPages() {
 
 function lintExpiringFacts() {
   const now = new Date();
-  const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const cutoff30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const candidates = [];
 
   for (const cat of ['04-facts']) {
@@ -116,12 +116,64 @@ function lintExpiringFacts() {
       const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
       const trust = trustMatch ? parseFloat(trustMatch[1]) : 1;
       const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
-      if (trust < 0.3 && updated < cutoff) {
+      if (trust < 0.3 && updated < cutoff30) {
         candidates.push({ file: path.relative(ROOT, full), trust, updated });
       }
     }
   }
   return candidates;
+}
+
+// ===== v3.0 F3 新增：知识生命周期检查 =====
+function lintKnowledgeLifecycle() {
+  // 规则 (per F3 任务单):
+  //   - last_updated > 30天 且 retrieval_count=0 → 标记"候选归档"
+  //   - 归档后 > 90 天 → 真删
+  const now = new Date();
+  const cutoff30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const cutoff90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+  const archiveCandidates = [];
+  const deleteCandidates = [];
+
+  for (const cat of ['04-facts']) {
+    const dir = path.join(WIKI, cat);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.md')) continue;
+      const full = path.join(dir, f);
+      const content = fs.readFileSync(full, 'utf8');
+      const fm = extractFrontmatter(content);
+      if (!fm) continue;
+
+      const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
+      const retrievalMatch = fm.match(/^retrieval_count:\s*(\d+)/m);
+      const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
+      const retrievalCount = retrievalMatch ? parseInt(retrievalMatch[1]) : 0;
+
+      // 检查候选归档条件
+      if (updated < cutoff30 && retrievalCount === 0) {
+        archiveCandidates.push({ 
+          file: path.relative(ROOT, full), 
+          updated,
+          retrievalCount,
+          reason: '30天未更新且无召回记录'
+        });
+      }
+
+      // 检查归档文件删除条件
+      if (cat === '98-archive') {
+        if (updated < cutoff90) {
+          deleteCandidates.push({ 
+            file: path.relative(ROOT, full), 
+            updated,
+            reason: '归档超过90天'
+          });
+        }
+      }
+    }
+  }
+
+  return { archiveCandidates, deleteCandidates };
 }
 
 function lintIndexSize() {
@@ -143,6 +195,7 @@ function lintCandidateCleanup(autoClean = false) {
   //   - confidence: medium + 创建 > 10 天 → "建议 review"
   //   - confidence: high + 创建 > 14 天 → "人工确认(>14天未升级)"
   //   - 无 confidence 字段 → 用 trust 值推断 (trust < 0.5 视为 low)
+  // v3.0 F5 新增: 候选堆积 > 14 天 → 自动删 (无需判断 confidence)
   const candidates = [];
   const deleted = [];
   if (!fs.existsSync(TEMP)) return { candidates, deleted };
@@ -188,22 +241,37 @@ function lintCandidateCleanup(autoClean = false) {
     const ageDays = (now - created.getTime()) / dayMs;
 
     let action = null;
-    if (confidence === 'low' && ageDays > 7) action = '删除';
-    else if (confidence === 'high' && ageDays > 14) action = '人工确认(>14天未升级)';
-    else if (confidence === 'medium' && ageDays > 10) action = '建议 review';
-
-    if (action) {
+    // v3.0 F5 新增: 候选堆积 > 14 天 → 自动删
+    if (ageDays > 14) {
+      action = '删除(>14天未升级)';
       candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
-      // auto-clean: 低置信度 + >7 天 → 真删
-      if (autoClean && action === '删除') {
+      // auto-fix: >14 天自动删除
+      if (autoClean) {
         try {
           fs.unlinkSync(full);
           deleted.push(f);
         } catch (e) {
-          // 删失败, 报告里加注
           candidates[candidates.length - 1].action = '删除失败: ' + e.message;
         }
       }
+    } else if (confidence === 'low' && ageDays > 7) {
+      action = '删除';
+      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
+      // auto-clean: 低置信度 + >7 天 → 真删
+      if (autoClean) {
+        try {
+          fs.unlinkSync(full);
+          deleted.push(f);
+        } catch (e) {
+          candidates[candidates.length - 1].action = '删除失败: ' + e.message;
+        }
+      }
+    } else if (confidence === 'high' && ageDays > 14) {
+      action = '人工确认(>14天未升级)';
+      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
+    } else if (confidence === 'medium' && ageDays > 10) {
+      action = '建议 review';
+      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
     }
   }
 
@@ -273,6 +341,33 @@ function lintAll() {
     report.push('- 无 ✅\n');
   } else {
     expiring.forEach(e => report.push(`- ${e.file} (trust: ${e.trust}, updated: ${e.updated.toISOString().slice(0, 10)})\n`));
+  }
+  report.push('\n');
+
+  // 2.5 知识生命周期检查 (F3 新增)
+  const lifecycle = lintKnowledgeLifecycle();
+  report.push(`## 知识生命周期 (${lifecycle.archiveCandidates.length + lifecycle.deleteCandidates.length})\n`);
+  
+  if (lifecycle.archiveCandidates.length === 0 && lifecycle.deleteCandidates.length === 0) {
+    report.push('- 生命周期健康 ✅\n');
+  } else {
+    if (lifecycle.archiveCandidates.length > 0) {
+      report.push(`### 候选归档 (${lifecycle.archiveCandidates.length})\n`);
+      report.push(`| 文件 | 更新日期 | 召回次数 | 原因 |\n`);
+      report.push(`|---|---|---|---|\n`);
+      lifecycle.archiveCandidates.forEach(c => {
+        report.push(`| ${c.file} | ${c.updated.toISOString().slice(0, 10)} | ${c.retrievalCount} | ${c.reason} |\n`);
+      });
+    }
+    
+    if (lifecycle.deleteCandidates.length > 0) {
+      report.push(`### 候选真删 (${lifecycle.deleteCandidates.length})\n`);
+      report.push(`| 文件 | 更新日期 | 原因 |\n`);
+      report.push(`|---|---|---|\n`);
+      lifecycle.deleteCandidates.forEach(c => {
+        report.push(`| ${c.file} | ${c.updated.toISOString().slice(0, 10)} | ${c.reason} |\n`);
+      });
+    }
   }
   report.push('\n');
 
@@ -377,8 +472,180 @@ function lintAll() {
   report.push(`- 候选待清理: ${candResult.candidates.length} (${candResult.deleted.length} 已自动删)\n`);
   report.push(`- 召回失败 (>14天): ${missedOld} (${missResult.closed.length} 已自动关闭)\n`);
   report.push(`- INDEX ${idx ? idx.bytes : '?'} bytes\n`);
+  report.push(`- 生命周期: ${lifecycle.archiveCandidates.length} 候选归档, ${lifecycle.deleteCandidates.length} 候选删除\n`);
 
   return report.join('');
+}
+
+// ===== v3.0 F5 新增：孤立页自动修复 =====
+function autoFixOrphanPages() {
+  const idxPath = path.join(ROOT, 'index.md');
+  if (!fs.existsSync(idxPath)) return { fixed: 0, skipped: 0 };
+
+  const pages = getAllPages();
+  const allLinks = new Set();
+  for (const p of pages) {
+    const content = fs.readFileSync(p, 'utf8');
+    for (const link of extractLinks(content)) {
+      allLinks.add(link);
+    }
+  }
+
+  let fixed = 0;
+  let skipped = 0;
+  const orphansToFix = [];
+
+  for (const p of pages) {
+    const rel = path.relative(WIKI, p).replace(/\\/g, '/').replace(/\.md$/, '');
+    const name = path.basename(p, '.md');
+    const hasInbound = allLinks.has(name) || allLinks.has(rel);
+
+    if (!hasInbound && !name.startsWith('index') && !rel.includes('INDEX')) {
+      // 这是一个孤立页，尝试自动补录
+      const content = fs.readFileSync(p, 'utf8');
+      const fm = extractFrontmatter(content);
+      if (fm) {
+        const titleMatch = fm.match(/^title:\s*(.+)$/m);
+        const title = titleMatch ? titleMatch[1] : name;
+        const descMatch = content.match(/^#\s+(.+)$/m);
+        const description = descMatch ? descMatch[1].trim().slice(0, 40) + '...' : '';
+
+        // 确定分类
+        const catMatch = rel.match(/^(\d{2}-[^\/]+)/);
+        const category = catMatch ? catMatch[1] : 'other';
+
+        orphansToFix.push({ 
+          file: rel, 
+          category, 
+          title, 
+          description: title + ': ' + description 
+        });
+        fixed++;
+      } else {
+        skipped++;
+      }
+    }
+  }
+
+  // 自动更新 index.md
+  if (orphansToFix.length > 0) {
+    let indexContent = fs.readFileSync(idxPath, 'utf8');
+    
+    // 按分类分组
+    const byCategory = {};
+    orphansToFix.forEach(o => {
+      if (!byCategory[o.category]) byCategory[o.category] = [];
+      byCategory[o.category].push(o);
+    });
+
+    // 为每个分类添加链接
+    for (const cat in byCategory) {
+      const catHeader = `## ${cat.replace(/-/g, ' ')}`;
+      const catIndex = indexContent.indexOf(catHeader);
+      
+      if (catIndex >= 0) {
+        // 找到分类，添加链接
+        const nextHeaderIndex = indexContent.indexOf('##', catIndex + catHeader.length);
+        let insertPoint = nextHeaderIndex;
+        if (insertPoint < 0) insertPoint = indexContent.length;
+        
+        const linksToAdd = byCategory[cat].map(o => 
+          `- [[wiki/${o.file}]] — ${o.description}\n`
+        ).join('');
+        
+        indexContent = indexContent.slice(0, insertPoint) + 
+          '\n' + linksToAdd + indexContent.slice(insertPoint);
+      } else {
+        // 分类不存在，新建
+        const newCatSection = `\n## ${cat.replace(/-/g, ' ')}\n\n`;
+        const linksToAdd = byCategory[cat].map(o => 
+          `- [[wiki/${o.file}]] — ${o.description}\n`
+        ).join('');
+        
+        indexContent += newCatSection + linksToAdd;
+      }
+    }
+
+    fs.writeFileSync(idxPath, indexContent, 'utf8');
+  }
+
+  return { fixed, skipped, orphans: orphansToFix };
+}
+
+// ===== v3.0 F3 新增：自动归档功能 =====
+function autoArchive() {
+  const now = new Date();
+  const cutoff30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const archiveDir = path.join(WIKI, '98-archive');
+  if (!fs.existsSync(archiveDir)) {
+    fs.mkdirSync(archiveDir, { recursive: true });
+  }
+
+  const archived = [];
+
+  for (const cat of ['04-facts']) {
+    const dir = path.join(WIKI, cat);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.md')) continue;
+      const full = path.join(dir, f);
+      const content = fs.readFileSync(full, 'utf8');
+      const fm = extractFrontmatter(content);
+      if (!fm) continue;
+
+      const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
+      const retrievalMatch = fm.match(/^retrieval_count:\s*(\d+)/m);
+      const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
+      const retrievalCount = retrievalMatch ? parseInt(retrievalMatch[1]) : 0;
+
+      // 归档条件: last_updated > 30天 且 retrieval_count=0
+      if (updated < cutoff30 && retrievalCount === 0) {
+        const archiveName = `${now.toISOString().slice(0, 10)}-${f}`;
+        const archivePath = path.join(archiveDir, archiveName);
+        try {
+          fs.renameSync(full, archivePath);
+          archived.push({ from: path.relative(ROOT, full), to: path.relative(ROOT, archivePath) });
+        } catch (e) {
+          console.error(`归档失败: ${full} -> ${archivePath}`, e.message);
+        }
+      }
+    }
+  }
+
+  return archived;
+}
+
+// ===== v3.0 F3 新增：自动删除功能 =====
+function autoDelete() {
+  const now = new Date();
+  const cutoff90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+  const archiveDir = path.join(WIKI, '98-archive');
+  const deleted = [];
+
+  if (!fs.existsSync(archiveDir)) return deleted;
+
+  for (const f of fs.readdirSync(archiveDir)) {
+    if (!f.endsWith('.md')) continue;
+    const full = path.join(archiveDir, f);
+    const content = fs.readFileSync(full, 'utf8');
+    const fm = extractFrontmatter(content);
+    if (!fm) continue;
+
+    const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
+    const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
+
+    // 删除条件: 归档 > 90 天
+    if (updated < cutoff90) {
+      try {
+        fs.unlinkSync(full);
+        deleted.push({ file: path.relative(ROOT, full), updated });
+      } catch (e) {
+        console.error(`删除失败: ${full}`, e.message);
+      }
+    }
+  }
+
+  return deleted;
 }
 
 // ===== main =====
@@ -390,11 +657,39 @@ function main() {
   if (!fs.existsSync(TEMP)) fs.mkdirSync(TEMP, { recursive: true });
   const today = new Date().toISOString().slice(0, 10);
   const out = path.join(TEMP, `lint-${today}.md`);
+  
+  // 自动修复 (F5)
+  if (_AUTO_FIX) {
+    // 孤立页自动补录 INDEX
+    const orphanFix = autoFixOrphanPages();
+    if (orphanFix.fixed > 0) {
+      console.log(`自动补录孤立页: ${orphanFix.fixed} 个文件`);
+      orphanFix.orphans.forEach(o => console.log(`  ${o.file} → INDEX`));
+    }
+    if (orphanFix.skipped > 0) {
+      console.log(`跳过孤立页(无frontmatter): ${orphanFix.skipped} 个`);
+    }
+    
+    // 自动归档 (F3)
+    const archived = autoArchive();
+    if (archived.length > 0) {
+      console.log(`自动归档: ${archived.length} 个文件`);
+      archived.forEach(a => console.log(`  ${a.from} -> ${a.to}`));
+    }
+    
+    // 自动删除 (F3)
+    const deleted = autoDelete();
+    if (deleted.length > 0) {
+      console.log(`自动删除: ${deleted.length} 个文件`);
+      deleted.forEach(d => console.log(`  ${d.file} (更新: ${d.updated.toISOString().slice(0, 10)})`));
+    }
+  }
+  
   const report = lintAll();
   fs.writeFileSync(out, report, 'utf8');
   console.log('Lint report written to:', out);
   if (_AUTO_CLEAN) console.log('(auto-clean 已启用: 低置信度候选已删, missed-recall >14天已关闭)');
-  if (_AUTO_FIX) console.log('(auto-fix 已启用: 但当前 lint.js 尚未实现自动修复, 待后续 task)');
+  if (_AUTO_FIX) console.log('(auto-fix 已启用: 孤立页补录INDEX + 候选归档 + >90天删除)');
   console.log('\n' + report);
 }
 

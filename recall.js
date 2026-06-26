@@ -110,11 +110,12 @@ function extractHit(filePath, content, query) {
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const opts = { query: '', category: null, limit: 5, inject: false };
+  const opts = { query: '', category: null, limit: 5, inject: false, rebuildIndex: false };
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--category') opts.category = args[++i];
     else if (args[i] === '--limit') opts.limit = parseInt(args[++i]);
     else if (args[i] === '--inject') opts.inject = true;
+    else if (args[i] === '--rebuild-index') opts.rebuildIndex = true;
     else opts.query += (opts.query ? ' ' : '') + args[i];
   }
   return opts;
@@ -215,6 +216,75 @@ function appendRsiEntry(rsiFile, date, patternKey, sampleQuery) {
   fs.writeFileSync(rsiFile, content, 'utf8');
 }
 
+// ===== v3.0 F4 新增：INDEX 重建功能 =====
+function rebuildIndex() {
+  console.log('开始重建 INDEX.md...');
+  
+  const wikiDir = path.join(ROOT, 'wiki');
+  const categories = ['00-core', '01-yang', '02-knowledge', '03-system', '04-facts', '99-temp'];
+  
+  let indexContent = `# Hermes Wiki INDEX\n\n> 自动生成 by recall.js --rebuild-index\n> 生成时间: ${new Date().toISOString()}\n\n`;
+  indexContent += `> 警告: 本文件是自动生成的，不应手动修改。如需更新，重新运行 \`node recall.js --rebuild-index\`\n\n`;
+  indexContent += `---\n\n`;
+  
+  let totalCount = 0;
+  
+  for (const cat of categories) {
+    const catDir = path.join(wikiDir, cat);
+    if (!fs.existsSync(catDir)) continue;
+    
+    const files = fs.readdirSync(catDir).filter(f => f.endsWith('.md'));
+    if (files.length === 0) continue;
+    
+    // Category header
+    const catName = cat.replace(/-/g, ' ').replace(/^(\d)/, '$1. ');
+    indexContent += `## ${catName} (${files.length})\n\n`;
+    
+    for (const f of files.sort()) {
+      const fullPath = path.join(catDir, f);
+      const content = fs.readFileSync(fullPath, 'utf8');
+      
+      // Extract title from frontmatter or use filename
+      const titleMatch = content.match(/^title:\s*(.+)$/m);
+      const h1Match = content.match(/^#\s+(.+)$/m);
+      const title = titleMatch ? titleMatch[1] : (h1Match ? h1Match[1] : f.replace(/\.md$/, ''));
+      
+      // Extract brief description (first paragraph after frontmatter)
+      const afterFrontmatter = content.replace(/^---\s*\n[\s\S]*?\n---\s*\n/, '').trim();
+      const firstParaMatch = afterFrontmatter.match(/^(.+?)(?=\n|$)/);
+      const description = firstParaMatch ? firstParaMatch[1].trim().slice(0, 60) + (firstParaMatch[1].length > 60 ? '...' : '') : '';
+      
+      // Create link
+      const link = `[[wiki/${cat}/${f}]]`;
+      totalCount++;
+      
+      indexContent += `- ${link} — ${title}: ${description}\n`;
+    }
+    
+    indexContent += '\n';
+  }
+  
+  // Footer
+  indexContent += `---\n\n**总计**: ${totalCount} 个页面\n`;
+  indexContent += `**最后更新**: ${new Date().toISOString().slice(0, 10)}\n`;
+  
+  // Write to index.md
+  const indexPath = path.join(ROOT, 'index.md');
+  fs.writeFileSync(indexPath, indexContent, 'utf8');
+  
+  console.log(`✅ INDEX.md 已重建`);
+  console.log(`   路径: ${indexPath}`);
+  console.log(`   总页面数: ${totalCount}`);
+  console.log(`   字节数: ${Buffer.byteLength(indexContent, 'utf8')}`);
+}
+
 // Main
 const opts = parseArgs();
+
+// Handle --rebuild-index mode
+if (process.argv.includes('--rebuild-index')) {
+  rebuildIndex();
+  process.exit(0);
+}
+
 recall(opts);

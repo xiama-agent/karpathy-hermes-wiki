@@ -5,7 +5,7 @@ type: fact-collection
 tags: [facts, general]
 trust: 0.60
 use_cases: ["查询 general 类事实", "YANG 提到 general 相关"]
-source: fact_store_export.json
+source: migration:2026-06-26:fact_store_export.json
 last_updated: 2026-06-26
 ---
 

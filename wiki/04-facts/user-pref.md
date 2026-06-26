@@ -5,7 +5,7 @@ type: fact-collection
 tags: [facts, user_pref]
 trust: 0.7
 use_cases: ["查询 YANG 用户偏好类事实", "YANG 提到偏好相关"]
-source: fact_store_export.json (备份) + manual activation 2026-06-26
+source: migration:2026-06-26:fact_store_export.json + manual activation 2026-06-26
 last_updated: 2026-06-26
 ---
 
