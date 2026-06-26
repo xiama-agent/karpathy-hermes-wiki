@@ -23,7 +23,8 @@ const {
   missingFrontmatterFields,
   addRelatedLink,
   wikiLinkFromPath,
-  summarizeText
+  summarizeText,
+  getLocalDateString
 } = require('./wiki-utils');
 
 function parseArgs() {
@@ -58,6 +59,17 @@ function lintFrontmatter() {
     }
     for (const field of missingFrontmatterFields(parsed.data)) {
       issues.push({ file, issue: `missing field: ${field}` });
+    }
+  }
+  return issues;
+}
+
+function lintNaming() {
+  const issues = [];
+  for (const file of getAllPages()) {
+    const base = path.basename(file);
+    if (!/^[a-z0-9-]+\.md$/.test(base)) {
+      issues.push({ file, issue: 'filename is not lowercase hyphen-case' });
     }
   }
   return issues;
@@ -107,14 +119,35 @@ function lintArchiveCandidates() {
 }
 
 function lintIndexHealth() {
-  if (!fs.existsSync(INDEX_FILE)) return { exists: false, missing: [] };
+  if (!fs.existsSync(INDEX_FILE)) return { exists: false, missing: [], unindexed: [] };
   const content = readMarkdown(INDEX_FILE);
   const links = extractLinks(content);
   const missing = links.filter(link => {
     const normalized = link.replace(/^wiki\//, 'wiki/');
     return !fs.existsSync(path.join(ROOT, normalized.replace(/\//g, path.sep)));
   });
-  return { exists: true, bytes: Buffer.byteLength(content, 'utf8'), missing };
+  const current = new Set(links.map(link => link.replace(/^wiki\//, 'wiki/')));
+  const unindexed = getAllPages()
+    .map(file => path.relative(ROOT, file).replace(/\\/g, '/'))
+    .filter(rel => !current.has(rel));
+  return { exists: true, bytes: Buffer.byteLength(content, 'utf8'), missing, unindexed };
+}
+
+function lintConflictCandidates() {
+  const candidates = [];
+  for (const file of getAllPages()) {
+    const content = readMarkdown(file);
+    if (content.includes('[CONFLICT ')) {
+      candidates.push({ file, issue: 'contains explicit conflict marker' });
+      continue;
+    }
+    const parsed = parseFrontmatter(content);
+    const body = (parsed.body || content).toLowerCase();
+    if (body.includes('不通') && body.includes('有流程')) {
+      candidates.push({ file, issue: 'mixed positive/negative statements in same page' });
+    }
+  }
+  return candidates;
 }
 
 function inferParentPage(orphan) {
@@ -136,7 +169,7 @@ function fixFrontmatter(page, dryRun) {
     tags: [path.basename(path.dirname(page.file))],
     trust: 0.3,
     source: 'lint-fix',
-    last_updated: new Date().toISOString().slice(0, 10)
+    last_updated: getLocalDateString()
   };
 
   const data = parsed.data || {};
@@ -214,17 +247,19 @@ function autoFix(options) {
 }
 
 function buildReport(autoFixResult) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDateString();
   const orphans = lintOrphans();
   const archiveCandidates = lintArchiveCandidates();
   const fmIssues = lintFrontmatter();
+  const namingIssues = lintNaming();
   const indexHealth = lintIndexHealth();
+  const conflicts = lintConflictCandidates();
 
   const report = [];
   report.push(`# Lint Report — ${today}`);
   report.push('');
-  report.push('## 矛盾');
-  report.push('- 当前版本未实现自动矛盾判真；冲突仍需人工 review。');
+  report.push(`## 矛盾 (${conflicts.length})`);
+  report.push(...(conflicts.length ? conflicts.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')}: ${item.issue}`) : ['- 无 ✅']));
   report.push('');
   report.push(`## 孤立页 (${orphans.length})`);
   report.push(...(orphans.length ? orphans.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')}`) : ['- 无 ✅']));
@@ -238,16 +273,24 @@ function buildReport(autoFixResult) {
   } else {
     report.push(`- index.md: ${indexHealth.bytes} bytes`);
     report.push(...(indexHealth.missing.length ? indexHealth.missing.map(item => `- 缺失: ${item}`) : ['- 链接存在性正常 ✅']));
+    report.push(...(indexHealth.unindexed.length ? indexHealth.unindexed.map(item => `- 未索引: ${item}`) : ['- 磁盘与 index.md 同步 ✅']));
   }
   report.push('');
   report.push(`## Frontmatter 问题 (${fmIssues.length})`);
   report.push(...(fmIssues.length ? fmIssues.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')}: ${item.issue}`) : ['- 无 ✅']));
   report.push('');
+  report.push(`## 命名问题 (${namingIssues.length})`);
+  report.push(...(namingIssues.length ? namingIssues.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')}: ${item.issue}`) : ['- 无 ✅']));
+  report.push('');
   report.push('## 自动修复记录');
   report.push(...(autoFixResult && autoFixResult.actions.length ? autoFixResult.actions.map(item => `- ${item}`) : ['- 未执行']));
   report.push('');
   report.push('## 需要 YANG 决策');
-  report.push(...(autoFixResult && autoFixResult.reviews.length ? autoFixResult.reviews.map(item => `- ${item}`) : ['- 无 ✅']));
+  const decisions = [
+    ...(autoFixResult && autoFixResult.reviews.length ? autoFixResult.reviews : []),
+    ...conflicts.map(item => `${path.relative(ROOT, item.file).replace(/\\/g, '/')}: ${item.issue}`)
+  ];
+  report.push(...(decisions.length ? decisions.map(item => `- ${item}`) : ['- 无 ✅']));
   report.push('');
   return report.join('\n') + '\n';
 }
@@ -257,7 +300,7 @@ function main() {
   const opts = parseArgs();
   const autoFixResult = opts.fix ? autoFix(opts) : { actions: [], reviews: [] };
   const report = buildReport(autoFixResult);
-  const out = path.join(TEMP, `lint-${new Date().toISOString().slice(0, 10)}.md`);
+  const out = path.join(TEMP, `lint-${getLocalDateString()}.md`);
   if (!opts.dryRun) {
     writeMarkdown(out, report);
     appendLog('lint', opts.fix ? 'lint --fix' : 'lint', false);

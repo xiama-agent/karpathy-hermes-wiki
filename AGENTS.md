@@ -84,8 +84,9 @@ last_updated: YYYY-MM-DD
   1. 读 index.md，获得全局目录
   2. 用 auto-retrieve.js 或全文搜索检索 Wiki
   3. 读取 top-3 相关页面的 frontmatter、首段、相关链接
-  4. 综合回答，并在需要时引用页面路径
-  5. 有价值的新答案可回写 Wiki
+  4. 若结果 trust 偏低或无高 trust 页面，先标记："这部分来自模型知识，未在 Wiki 中充分验证。"
+  5. 综合回答，并在需要时引用页面路径
+  6. 有价值的新答案可回写 Wiki
 ```
 
 ### 2.2 强制预读映射
@@ -119,6 +120,26 @@ last_updated: YYYY-MM-DD
   2. 补 frontmatter、召回条件、相关链接
   3. 更新 index.md
   4. 追加 log.md：## [YYYY-MM-DD] backfill | {title}
+```
+
+### 2.5 输出验证
+
+```
+触发：回复生成后、发送前
+动作：
+  1. 用 topic-validation.js 检查 topic-detection 中声明的 wiki_ids 是否真实存在
+  2. 如涉及高风险路径/规则回答，优先做 existence + content 双检查
+  3. 验证失败时，改写回复或补充 "未在 Wiki 中验证" 提示，不直接硬答
+```
+
+### 2.6 会话收尾
+
+```
+触发：会话结束 / session finalize
+动作：
+  1. 运行 session-summary.js
+  2. 记录本次主题、涉及文件、后续待办
+  3. 写入 wiki/01-yang/session-log/
 ```
 
 不回写一次性指令、临时状态、未确认猜测、敏感隐私、账号密码、token。

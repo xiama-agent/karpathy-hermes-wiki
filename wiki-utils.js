@@ -34,6 +34,21 @@ function walkMarkdown(dir, list = []) {
   return list;
 }
 
+function getLocalDateString(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getLocalTimeString(date = new Date()) {
+  return [
+    String(date.getHours()).padStart(2, '0'),
+    String(date.getMinutes()).padStart(2, '0'),
+    String(date.getSeconds()).padStart(2, '0')
+  ].join(':');
+}
+
 function parseFrontmatter(content) {
   const match = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
   if (!match) return { data: null, body: content, raw: null };
@@ -117,8 +132,9 @@ function writeMarkdown(filePath, content) {
 }
 
 function appendLog(operation, description, dryRun = false) {
-  const today = new Date().toISOString().slice(0, 10);
-  const time = new Date().toTimeString().slice(0, 8);
+  const now = new Date();
+  const today = getLocalDateString(now);
+  const time = getLocalTimeString(now);
   const logFile = path.join(LOG_DIR, `${today}.md`);
   const entry = `## [${time}] ${operation} | ${description}\n`;
   if (dryRun) return { logFile, entry };
@@ -128,7 +144,7 @@ function appendLog(operation, description, dryRun = false) {
     content = fs.readFileSync(logFile, 'utf8');
     if (!content.endsWith('\n')) content += '\n';
   } else {
-    content = `# Hermes Log — ${today}\n\n`;
+    content = `# 操作日志 ${today}\n\n> 格式：\`## [HH:mm:ss] {operation} | {description}\`\n> 操作类型：init / ingest / query / lint / audit / forget / soul-sync / recall-fail / meltdown\n\n---\n\n`;
   }
   content += `${entry}\n`;
   fs.writeFileSync(logFile, content, 'utf8');
@@ -141,9 +157,9 @@ function listWikiPages() {
 
 function inferCategoryFromText(text, sourcePath = '') {
   const lower = `${sourcePath}\n${text}`.toLowerCase();
+  if (/architecture|audit|框架|架构|memory|wiki|lint|ingest|query|forget|cron|schedule|system|hook|agents/.test(lower)) return '03-system';
   if (/yang|预算|订阅|桌面|头像|偏好|产品经理/.test(lower)) return '01-yang';
   if (/路径|plugin|mcp|api|模型|知识|教程|文档|skill/.test(lower)) return '02-knowledge';
-  if (/workflow|流程|lint|ingest|query|系统|cron|schedule|架构|memory|wiki/.test(lower)) return '03-system';
   if (/rule|core|身份|铁律|宪法|soul/.test(lower)) return '00-core';
   return '04-facts';
 }
@@ -186,7 +202,14 @@ function listRawFiles(targetDir = RAW) {
 }
 
 function summarizeText(content, maxLen = 180) {
-  const text = content.replace(/^---[\s\S]*?---\s*/m, '').replace(/\s+/g, ' ').trim();
+  const text = content
+    .replace(/^---[\s\S]*?---\s*/m, '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/\|[^\n]*\|/g, ' ')
+    .replace(/^#+\s+/gm, '')
+    .replace(/\[\[[^\]]+\]\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   if (text.length <= maxLen) return text;
   return `${text.slice(0, maxLen - 3)}...`;
 }
@@ -238,6 +261,8 @@ module.exports = {
   ensureDir,
   ensureBaseDirs,
   walkMarkdown,
+  getLocalDateString,
+  getLocalTimeString,
   parseFrontmatter,
   formatFrontmatter,
   toSlug,

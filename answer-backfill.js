@@ -70,7 +70,8 @@ function main() {
     trust: 0.3,
     use_cases: ['复用高质量回答', '后续相似问题快速召回'],
     source: 'conversation-backfill',
-    last_updated: new Date().toISOString().slice(0, 10)
+    last_updated: new Date().toISOString().slice(0, 10),
+    retrieval_count: 0
   };
   const content = buildPageContent(frontmatter, opts.title, {
     core: `## 核心内容\n\n${opts.content.trim()}`,

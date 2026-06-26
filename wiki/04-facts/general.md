@@ -6,7 +6,7 @@ tags: [facts, general]
 trust: 0.60
 use_cases: ["查询 general 类事实", "YANG 提到 general 相关"]
 source: migration:2026-06-26:fact_store_export.json
-last_updated: 2026-06-26
+last_updated: 2026-06-27
 ---
 
 # 通用核心事实
@@ -15,15 +15,15 @@ last_updated: 2026-06-26
 
 ---
 
-## HERMES-FACT-015 (trust: 0.6)
+## HERMES-FACT-015 (trust: 0.7)
 
 [参考] Hindsight不适合本地方案(需Docker+PG+API Key)，已切Holographic纯本地SQLite轻量方案为二级记忆。
 
 - **fact_id**: 15
 - **category**: general
 - **tags**: 
-- **trust**: 0.6
-- **retrieval_count**: 2
+- **trust**: 0.7
+- **retrieval_count**: 3
 - **helpful_count**: 0
 - **created**: 2026-06-15 05:57:02
 - **updated**: 2026-06-15 08:39:17

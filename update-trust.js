@@ -18,6 +18,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { walkMarkdown, parseFrontmatter, formatFrontmatter, getLocalDateString } = require('./wiki-utils');
 
 const ROOT = path.join('D:', 'ai_schedule', 'hermes-brain');
 const FACTS_DIR = path.join(ROOT, 'wiki', '04-facts');
@@ -30,7 +31,11 @@ function listFactIds(dir) {
     const content = fs.readFileSync(full, 'utf8');
     const re = /^## (HERMES-FACT-\S+)/gm;
     let m;
-    while ((m = re.exec(content)) !== null) ids.push({ id: m[1], file: f });
+    while ((m = re.exec(content)) !== null) ids.push({ id: m[1], file: f, mode: 'section' });
+    const parsed = parseFrontmatter(content);
+    if (parsed.data && parsed.data.id) {
+      ids.push({ id: parsed.data.id, file: f, mode: 'frontmatter' });
+    }
   }
   return ids;
 }
@@ -40,10 +45,6 @@ function parseArgs() {
   if (args.length < 1 || args[0] === '-h' || args[0] === '--help') {
     console.log('用法: node update-trust.js <fact-id> <delta>');
     console.log('     node update-trust.js <fact-id> --show');
-    console.log('');
-    console.log('例:');
-    console.log('  node update-trust.js HERMES-FACT-002 +0.1');
-    console.log('  node update-trust.js HERMES-FACT-007 --show');
     process.exit(args.length < 1 ? 1 : 0);
   }
   const factId = args[0];
@@ -56,47 +57,50 @@ function parseArgs() {
   return { factId, delta, showOnly };
 }
 
-function updateFactInContent(content, factId, delta) {
-  // 找到 "## HERMES-FACT-XXX (trust: ...)" 段, 直到下一个 "## " 或文件末尾
-  const headerRe = new RegExp(`^## (${factId.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}) \\(trust: ([0-9.]+)\\)`, 'm');
+function updateFactInSection(content, factId, delta) {
+  const headerRe = new RegExp(`^## (${factId.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}) \\(trust: ([0-9.]+)\\)`, 'm');
   const headerMatch = content.match(headerRe);
   if (!headerMatch) return { ok: false, reason: 'header_not_found' };
 
-  // 段起始位置
   const headerStart = headerMatch.index;
   const oldTrust = parseFloat(headerMatch[2]);
   const newTrust = Math.max(0, Math.min(1, oldTrust + delta));
-
-  // 段结束位置 (下一个 ## 或文件末尾)
   const afterHeader = headerStart + headerMatch[0].length;
   const nextHeaderRe = /^## /gm;
   nextHeaderRe.lastIndex = afterHeader;
   const nextMatch = nextHeaderRe.exec(content);
   const sectionEnd = nextMatch ? nextMatch.index : content.length;
+  const section = content.slice(headerStart, sectionEnd);
 
-  const sectionStart = headerStart;
-  const section = content.slice(sectionStart, sectionEnd);
-
-  // 在该段内替换:
-  // 1. 段标题的 trust 值
-  // 2. **trust**: 字段
-  // 3. **retrieval_count**: 字段 (+1)
   const newSection = section
     .replace(/^(\s*## HERMES-FACT-\S+ \(trust: )[0-9.]+(\))/m, `$1${newTrust.toFixed(1)}$2`)
     .replace(/^(\s*-\s+\*\*trust\*\*:\s*)[0-9.]+/m, `$1${newTrust.toFixed(1)}`)
     .replace(/^(\s*-\s+\*\*retrieval_count\*\*:\s*)(\d+)/m, (_, p1, p2) => `${p1}${parseInt(p2, 10) + 1}`);
 
-  const newContent = content.slice(0, sectionStart) + newSection + content.slice(sectionEnd);
+  const newContent = content.slice(0, headerStart) + newSection + content.slice(sectionEnd);
+  const updated = newContent.replace(/^(last_updated:\s*)\S+/m, `$1${getLocalDateString()}`);
+  return { ok: true, content: updated, oldTrust, newTrust, mode: 'section' };
+}
 
-  // 同步更新 frontmatter 的 last_updated
-  const today = new Date().toISOString().slice(0, 10);
-  const updated = newContent.replace(/^(last_updated:\s*)\S+/m, `$1${today}`);
-
-  return { ok: true, content: updated, oldTrust, newTrust };
+function updateFrontmatterPage(content, delta) {
+  const parsed = parseFrontmatter(content);
+  if (!parsed.data) return { ok: false, reason: 'missing_frontmatter' };
+  const oldTrust = Number(parsed.data.trust || 0.3);
+  const newTrust = Math.max(0, Math.min(1, oldTrust + delta));
+  const retrievalCount = Number(parsed.data.retrieval_count || 0) + 1;
+  parsed.data.trust = Number(newTrust.toFixed(1));
+  parsed.data.retrieval_count = retrievalCount;
+  parsed.data.last_updated = getLocalDateString();
+  const updated = `${formatFrontmatter(parsed.data)}\n${parsed.body.trim()}\n`;
+  return { ok: true, content: updated, oldTrust, newTrust, mode: 'frontmatter' };
 }
 
 function showFact(content, factId) {
-  const headerRe = new RegExp(`^## (${factId.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')})[^\\n]*`, 'm');
+  const parsed = parseFrontmatter(content);
+  if (parsed.data && parsed.data.id === factId) {
+    return content.trim();
+  }
+  const headerRe = new RegExp(`^## (${factId.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')})[^\\n]*`, 'm');
   const m = content.match(headerRe);
   if (!m) return null;
   const start = m.index;
@@ -110,7 +114,6 @@ function showFact(content, factId) {
 
 function main() {
   const { factId, delta, showOnly } = parseArgs();
-
   if (!fs.existsSync(FACTS_DIR)) {
     console.error(`❌ 04-facts 目录不存在: ${FACTS_DIR}`);
     process.exit(1);
@@ -128,34 +131,44 @@ function main() {
 
   const filepath = path.join(FACTS_DIR, found.file);
   const content = fs.readFileSync(filepath, 'utf8');
-
   if (showOnly) {
     const section = showFact(content, factId);
-    if (section) {
-      console.log(section.trim());
-    } else {
-      console.error(`❌ ${factId} 在 ${found.file} 中找到 id 但读取段失败`);
-      process.exit(1);
-    }
+    if (section) console.log(section.trim());
+    else process.exit(1);
     return;
   }
-
   if (delta === null || isNaN(delta)) {
-    console.error(`❌ delta 必须是数字, 例: +0.1 / -0.2 / 0.05`);
+    console.error('❌ delta 必须是数字');
     process.exit(1);
   }
 
-  const result = updateFactInContent(content, factId, delta);
+  const result = found.mode === 'frontmatter' && !content.includes(`## ${factId}`)
+    ? updateFrontmatterPage(content, delta)
+    : updateFactInSection(content, factId, delta);
+  if (!result.ok && found.mode === 'section') {
+    const fallback = updateFrontmatterPage(content, delta);
+    if (!fallback.ok) {
+      console.error(`❌ 更新失败: ${result.reason}`);
+      process.exit(1);
+    }
+    fs.writeFileSync(filepath, fallback.content, 'utf8');
+    console.log(`✅ ${factId} (${found.file}) [frontmatter]:`);
+    console.log(`   trust: ${fallback.oldTrust.toFixed(1)} → ${fallback.newTrust.toFixed(1)} (delta: ${delta > 0 ? '+' : ''}${delta})`);
+    console.log('   retrieval_count: +1');
+    console.log(`   last_updated: ${getLocalDateString()}`);
+    return;
+  }
   if (!result.ok) {
     console.error(`❌ 更新失败: ${result.reason}`);
     process.exit(1);
   }
 
   fs.writeFileSync(filepath, result.content, 'utf8');
-  console.log(`✅ ${factId} (${found.file}):`);
+  console.log(`✅ ${factId} (${found.file}) [${result.mode}]:`);
   console.log(`   trust: ${result.oldTrust.toFixed(1)} → ${result.newTrust.toFixed(1)} (delta: ${delta > 0 ? '+' : ''}${delta})`);
-  console.log(`   retrieval_count: +1`);
-  console.log(`   last_updated: ${new Date().toISOString().slice(0, 10)}`);
+  console.log('   retrieval_count: +1');
+  console.log(`   last_updated: ${getLocalDateString()}`);
 }
 
 if (require.main === module) main();
+

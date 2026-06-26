@@ -18,7 +18,8 @@ const {
   summarizeText,
   addRelatedLink,
   buildPageContent,
-  parseFrontmatter
+  parseFrontmatter,
+  getLocalDateString
 } = require('./wiki-utils');
 
 function parseArgs() {
@@ -43,7 +44,6 @@ function listPendingFiles() {
   return listRawFiles(RAW)
     .filter(file => {
       const rel = path.relative(RAW, file).replace(/\\/g, '/');
-      // Skip Obsidian metadata and dotfile directories
       if (/(^|\/)\.[^/]+\//.test(rel)) return false;
       const slug = hyphenTitle(rel);
       return !fs.existsSync(path.join(SOURCES, `${slug}.md`));
@@ -77,9 +77,9 @@ function buildSourcePage(rawFile, content) {
     trust: 0.3,
     use_cases: ['追溯原始材料', '定位知识来源'],
     source: path.relative(ROOT, rawFile).replace(/\\/g, '/'),
-    last_updated: new Date().toISOString().slice(0, 10)
+    last_updated: getLocalDateString()
   };
-  const summary = summarizeText(content, 400);
+  const summary = summarizeText(content, 220);
   const page = buildPageContent(frontmatter, `${title} 来源摘要`, {
     core: `## 核心内容\n\n- 原始文件：\`${path.relative(ROOT, rawFile).replace(/\\/g, '/')}\`\n- 推断分类：\`${category}\`\n- 摘要：${summary}`,
     recall: '## 召回条件\n\n- 当需要追溯该原始材料、确认结论来源或重新 ingest 时召回。',
@@ -102,9 +102,9 @@ function buildCategoryPage(rawFile, content, sourceInfo, chunkIndex = null, chun
     trust: 0.3,
     use_cases: ['从 raw 材料快速召回结论'],
     source: path.relative(ROOT, rawFile).replace(/\\/g, '/'),
-    last_updated: new Date().toISOString().slice(0, 10)
+    last_updated: getLocalDateString()
   };
-  const summary = summarizeText(chunkText || content, 280);
+  const summary = summarizeText(chunkText || content, 200);
   const wikiLink = wikiLinkFromPath(sourceInfo.sourcePath);
   const page = buildPageContent(frontmatter, pageTitle, {
     core: `## 核心内容\n\n${summary}`,
@@ -114,13 +114,20 @@ function buildCategoryPage(rawFile, content, sourceInfo, chunkIndex = null, chun
   return { filePath, pageTitle, page, summary };
 }
 
-function updateSourceBacklinks(sourceInfo, createdPages, dryRun) {
+function updateSourceBacklinks(sourceInfo, pages, dryRun) {
   let content = sourceInfo.page;
-  for (const page of createdPages) {
+  for (const page of pages) {
     content = addRelatedLink(content, wikiLinkFromPath(page.filePath));
   }
   if (!dryRun) writeMarkdown(sourceInfo.sourcePath, content);
   return content;
+}
+
+function markConflict(existingContent, sourceInfo, rawFile) {
+  if (existingContent.includes('[CONFLICT ')) return existingContent;
+  const stamp = getLocalDateString();
+  const note = `\n\n[CONFLICT ${stamp}] 新摄入来源 \`${path.relative(ROOT, rawFile).replace(/\\/g, '/')}\` 与当前页面内容可能不一致，需人工核对。\n`;
+  return existingContent.trimEnd() + note;
 }
 
 function processFile(rawFile, dryRun) {
@@ -129,6 +136,7 @@ function processFile(rawFile, dryRun) {
   const createdPages = [];
   const updatedPages = [];
   const conflicts = [];
+  const relatedPages = [];
   const chunks = content.length > 20000 ? chunkLargeText(content) : [content];
 
   if (!dryRun) writeMarkdown(sourceInfo.sourcePath, sourceInfo.page);
@@ -139,21 +147,23 @@ function processFile(rawFile, dryRun) {
     if (fs.existsSync(pageInfo.filePath)) {
       const existing = readMarkdown(pageInfo.filePath);
       const parsed = parseFrontmatter(existing);
-      const nextBody = addRelatedLink(parsed.body, wikiLinkFromPath(sourceInfo.sourcePath));
-      const nextContent = `${existing.startsWith('---') ? existing.slice(0, existing.indexOf(parsed.body)) : ''}${nextBody}`;
-      if (!dryRun) writeMarkdown(pageInfo.filePath, nextContent);
-      updatedPages.push(pageInfo.filePath);
-      if (!existing.includes(sourceInfo.summary.slice(0, 24))) {
+      let nextBody = addRelatedLink(parsed.body, wikiLinkFromPath(sourceInfo.sourcePath));
+      let nextContent = `${existing.startsWith('---') ? existing.slice(0, existing.indexOf(parsed.body)) : ''}${nextBody}`;
+      if (!existing.includes(sourceInfo.summary.slice(0, 48))) {
+        nextContent = markConflict(nextContent, sourceInfo, rawFile);
         conflicts.push(path.relative(ROOT, pageInfo.filePath).replace(/\\/g, '/'));
       }
+      if (!dryRun) writeMarkdown(pageInfo.filePath, nextContent);
+      updatedPages.push(pageInfo.filePath);
     } else {
       if (!dryRun) writeMarkdown(pageInfo.filePath, pageInfo.page);
       createdPages.push(pageInfo);
     }
+    relatedPages.push(pageInfo);
     upsertIndexEntry(pageInfo.filePath, pageInfo.pageTitle, pageInfo.summary, dryRun);
   });
 
-  updateSourceBacklinks(sourceInfo, createdPages, dryRun);
+  updateSourceBacklinks(sourceInfo, relatedPages, dryRun);
   appendLog('ingest', path.basename(rawFile), dryRun);
 
   return {
