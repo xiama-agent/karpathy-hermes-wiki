@@ -1,0 +1,378 @@
+{
+  "00-core/identity.md": {
+    "last_modified": "2026-06-26T04:47:46.385Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "龙虾核心身份定义",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-core/preferences.md": {
+    "last_modified": "2026-06-26T04:48:01.364Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "YANG 核心偏好（≤20 条硬规则）",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-core/triggers.md": {
+    "last_modified": "2026-06-26T05:36:26.732Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "自动触发规则（什么时候自动干什么）",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-092714.md": {
+    "last_modified": "2026-06-26T09:27:14.557Z",
+    "last_updated": "2026-06-26T09:27:14.557Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-092714",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-093221.md": {
+    "last_modified": "2026-06-26T09:32:21.270Z",
+    "last_updated": "2026-06-26T09:32:21.270Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-093221",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-093345.md": {
+    "last_modified": "2026-06-26T09:33:45.876Z",
+    "last_updated": "2026-06-26T09:33:45.876Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-093345",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-094924.md": {
+    "last_modified": "2026-06-26T09:49:24.844Z",
+    "last_updated": "2026-06-26T09:49:24.844Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-094924",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-095121.md": {
+    "last_modified": "2026-06-26T09:51:21.770Z",
+    "last_updated": "2026-06-26T09:51:21.770Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-095121",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-095308.md": {
+    "last_modified": "2026-06-26T09:53:08.178Z",
+    "last_updated": "2026-06-26T09:53:08.178Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-095308",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "00-temp/candidates-20260626-095400.md": {
+    "last_modified": "2026-06-26T09:54:00.578Z",
+    "last_updated": "2026-06-26T09:54:00.578Z",
+    "trust": 0.5,
+    "title": "candidates-20260626-095400",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "01-yang/budget.md": {
+    "last_modified": "2026-06-26T04:48:41.092Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "YANG 预算详情",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "01-yang/communication.md": {
+    "last_modified": "2026-06-26T04:48:51.447Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "YANG 沟通偏好",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "01-yang/desktop.md": {
+    "last_modified": "2026-06-26T04:49:11.462Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "桌面与文件管理",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "01-yang/profile.md": {
+    "last_modified": "2026-06-26T04:48:33.115Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "YANG 身份档案",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "01-yang/projects.md": {
+    "last_modified": "2026-06-26T04:49:01.784Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "YANG 项目清单",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "01-yang/session-log/session-2026-06-26-193850.md": {
+    "last_modified": "2026-06-26T11:38:50.939Z",
+    "last_updated": "2026-06-26T11:38:50.939Z",
+    "trust": 0.5,
+    "title": "session-2026-06-26-193850",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/ai-schedule.md": {
+    "last_modified": "2026-06-26T05:17:10.139Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "多 AI 协作调度系统",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/aliyun.md": {
+    "last_modified": "2026-06-26T05:35:00.922Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "阿里云服务器",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/apk-build.md": {
+    "last_modified": "2026-06-26T06:48:08.982Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "Capacitor Android APK 打包",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/bb-browser.md": {
+    "last_modified": "2026-06-26T05:35:00.923Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "bb-browser 浏览器",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/image-gen.md": {
+    "last_modified": "2026-06-26T05:35:00.923Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "文生图能力",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/markitdown.md": {
+    "last_modified": "2026-06-26T05:35:00.923Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "MarkItDown 文档转换",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/mcp-plugins.md": {
+    "last_modified": "2026-06-26T05:35:00.923Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "MCP + 插件系统",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/minimax-m3.md": {
+    "last_modified": "2026-06-26T05:35:00.924Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "MiniMax M3 集成",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/night-lock.md": {
+    "last_modified": "2026-06-26T05:35:00.924Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "夜间锁屏程序",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/novel-rules.md": {
+    "last_modified": "2026-06-26T05:35:00.924Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "小说创作规则",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/npm-global.md": {
+    "last_modified": "2026-06-26T05:52:29.113Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "npm 全局工具清单",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/paths-conventions.md": {
+    "last_modified": "2026-06-26T09:03:28.906Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "路径约定",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/paths.md": {
+    "last_modified": "2026-06-26T07:45:36.723Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "关键路径速查",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/reasonix.md": {
+    "last_modified": "2026-06-26T05:35:00.925Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "Reasonix 双通道",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/self-media.md": {
+    "last_modified": "2026-06-26T05:36:07.700Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "自媒体工作流",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/semantic-memory.md": {
+    "last_modified": "2026-06-26T05:35:00.925Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "语义记忆系统",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/tools-overview.md": {
+    "last_modified": "2026-06-26T05:35:00.925Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "工具总览",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "02-knowledge/vision-ocr.md": {
+    "last_modified": "2026-06-26T05:35:00.926Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "视觉与OCR能力",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/auto-tasks.md": {
+    "last_modified": "2026-06-26T05:35:00.934Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "auto-tasks 自动任务",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/backup.md": {
+    "last_modified": "2026-06-26T05:35:00.926Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.9,
+    "title": "备份体系",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/cron-jobs.md": {
+    "last_modified": "2026-06-26T05:35:00.926Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "定时任务清单",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/disk-cleanup.md": {
+    "last_modified": "2026-06-26T05:35:00.934Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "disk-cleanup 插件",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/hermes-hooks.md": {
+    "last_modified": "2026-06-26T05:35:00.926Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "Hermes Hook 系统",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/private-info-policy.md": {
+    "last_modified": "2026-06-26T07:34:37.623Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 1,
+    "title": "隐私信息处理策略",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/rsi-ledger.md": {
+    "last_modified": "2026-06-26T11:43:14.741Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "RSI 账本 (Root-cause Self-Improvement)",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/schedule-protocol.md": {
+    "last_modified": "2026-06-26T05:35:00.927Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "调度协议 v3.0",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "03-system/twentythree-fire.md": {
+    "last_modified": "2026-06-26T05:35:00.934Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.95,
+    "title": "二十三火小说方法论",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "04-facts/general.md": {
+    "last_modified": "2026-06-26T11:39:45.495Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.6,
+    "title": "通用核心事实 (64 条)",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "04-facts/project.md": {
+    "last_modified": "2026-06-26T11:39:45.496Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.7,
+    "title": "项目事实 (6 条)",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "04-facts/tool.md": {
+    "last_modified": "2026-06-26T11:39:45.499Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.65,
+    "title": "工具配置与路径 (26 条)",
+    "urgency": "normal",
+    "days_since_update": 0
+  },
+  "04-facts/user-pref.md": {
+    "last_modified": "2026-06-26T11:39:53.460Z",
+    "last_updated": "2026-06-26T00:00:00.000Z",
+    "trust": 0.7,
+    "title": "YANG 用户偏好 (7 条)",
+    "urgency": "normal",
+    "days_since_update": 0
+  }
+}
