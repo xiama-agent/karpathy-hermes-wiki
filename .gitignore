@@ -22,6 +22,7 @@ regenerate-user-pref.js
 wiki-link-builder.js
 fix-dead-links.js
 hermes-wiki-*.ps1
+log/*.log
 
 # 系统垃圾
 .DS_Store
