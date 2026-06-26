@@ -34,19 +34,52 @@ function searchInFile(filePath, query) {
     const content = fs.readFileSync(filePath, 'utf8');
     const lower = content.toLowerCase();
     const lowerQ = query.toLowerCase();
+
+    // Direct match (fastest)
     if (lower.includes(lowerQ)) {
-      // Extract title from frontmatter or H1
-      const titleMatch = content.match(/^title:\s*(.+)$/m) || content.match(/^#\s+(.+)$/m);
-      const title = titleMatch ? titleMatch[1].trim() : path.basename(filePath);
-      // Extract snippet around match
-      const idx = lower.indexOf(lowerQ);
-      const start = Math.max(0, idx - 50);
-      const end = Math.min(content.length, idx + 100);
-      const snippet = content.slice(start, end).replace(/\n+/g, ' ');
-      return { file: filePath, title, snippet };
+      return extractHit(filePath, content, lowerQ);
+    }
+
+    // Chinese bigram match: split query into 2-char substrings, match if ANY bigram found
+    const chineseChars = (query.match(/[\u4e00-\u9fa5]/g) || []);
+    if (chineseChars.length >= 2) {
+      // Extract all bigrams
+      const bigrams = [];
+      for (let i = 0; i < chineseChars.length - 1; i++) {
+        bigrams.push(chineseChars[i] + chineseChars[i + 1]);
+      }
+      // If query is 2 Chinese chars, also try the exact pair
+      if (chineseChars.length === 2) {
+        bigrams.push(query);
+      }
+      // Count how many bigrams hit
+      let hitCount = 0;
+      let firstHit = null;
+      for (const bg of bigrams) {
+        const idx = lower.indexOf(bg);
+        if (idx >= 0) {
+          hitCount++;
+          if (!firstHit) firstHit = { idx, snippet: bg };
+        }
+      }
+      // Require at least 1 bigram hit (relaxed from full match)
+      if (hitCount > 0) {
+        return extractHit(filePath, content, firstHit.snippet);
+      }
     }
   } catch (e) {}
   return null;
+}
+
+function extractHit(filePath, content, query) {
+  const lower = content.toLowerCase();
+  const titleMatch = content.match(/^title:\s*(.+)$/m) || content.match(/^#\s+(.+)$/m);
+  const title = titleMatch ? titleMatch[1].trim() : path.basename(filePath);
+  const idx = lower.indexOf(query.toLowerCase());
+  const start = Math.max(0, idx - 50);
+  const end = Math.min(content.length, idx + 100);
+  const snippet = content.slice(start, end).replace(/\n+/g, ' ');
+  return { file: filePath, title, snippet };
 }
 
 function parseArgs() {

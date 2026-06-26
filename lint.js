@@ -39,6 +39,28 @@ function getAllPages() {
   return walkPages(WIKI).filter(f => !f.includes('99-temp'));
 }
 
+function lintFrontmatter() {
+  const requiredFields = ['id', 'title', 'type', 'tags', 'trust', 'last_updated'];
+  const issues = [];
+  const pages = getAllPages();
+  for (const p of pages) {
+    const content = fs.readFileSync(p, 'utf8');
+    const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+    if (!fmMatch) {
+      issues.push({ file: path.relative(WIKI, p), issue: 'missing frontmatter' });
+      continue;
+    }
+    const fm = fmMatch[1];
+    for (const field of requiredFields) {
+      const re = new RegExp(`^${field}:`, 'm');
+      if (!re.test(fm)) {
+        issues.push({ file: path.relative(WIKI, p), issue: `missing field: ${field}` });
+      }
+    }
+  }
+  return issues;
+}
+
 function lintOrphanPages() {
   const pages = getAllPages();
   const allLinks = new Set();
@@ -142,13 +164,46 @@ function lintAll() {
   }
   report.push('\n');
 
+  // 3.5 Frontmatter check
+  const fmIssues = lintFrontmatter();
+  report.push(`## Frontmatter 必填字段 (${fmIssues.length} 处问题)\n`);
+  if (fmIssues.length === 0) {
+    report.push('- 所有页面都通过校验 ✅\n');
+  } else {
+    fmIssues.slice(0, 10).forEach(i => report.push(`- ${i.file}: ${i.issue}\n`));
+    if (fmIssues.length > 10) {
+      report.push(`- ... 还有 ${fmIssues.length - 10} 处\n`);
+    }
+  }
+  report.push('\n');
+
   // 4. Missed recall (check 99-temp)
   report.push(`## 召回失败记录\n`);
+  let missedOld = 0;  // > 14 days old
   if (fs.existsSync(TEMP)) {
     const missed = fs.readdirSync(TEMP).filter(f => f.startsWith('missed-recall-'));
     report.push(`- 共 ${missed.length} 条失败记录\n`);
     if (missed.length > 0) {
-      missed.slice(-5).forEach(m => report.push(`  - ${m}\n`));
+      // Check age: files older than 14 days should be upgraded
+      const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+      missed.slice(-10).forEach(m => {
+        const dateMatch = m.match(/missed-recall-(\d{4}-\d{2}-\d{2})/);
+        if (dateMatch) {
+          const fileDate = new Date(dateMatch[1]);
+          if (fileDate < cutoff) {
+            missedOld++;
+            report.push(`  - ⚠️ ${m} (>14天，建议升级或归档)\n`);
+          } else {
+            report.push(`  - ${m}\n`);
+          }
+        } else {
+          report.push(`  - ${m}\n`);
+        }
+      });
+      if (missedOld > 0) {
+        report.push(`\n**⚠️ 升级建议**：${missedOld} 个 missed-recall 文件超过 14 天未升级\n`);
+        report.push(`- 行动：要么新建 wiki 页面消化这些缺口，要么归档（删除）\n`);
+      }
     }
   } else {
     report.push('- 99-temp 目录不存在\n');
@@ -160,6 +215,7 @@ function lintAll() {
   report.push(`- Wiki 总页面数: ${getAllPages().length}\n`);
   report.push(`- 孤立页: ${orphans.length}\n`);
   report.push(`- 候选归档: ${expiring.length}\n`);
+  report.push(`- 召回失败 (>14天): ${missedOld}\n`);
   report.push(`- INDEX ${idx ? idx.bytes : '?'} bytes\n`);
 
   return report.join('');

@@ -229,7 +229,51 @@ AGENTS.md 不能反向修改 SOUL.md
 
 ---
 
-## 第 7 章：错误处理
+## 第 6.5 章：Wiki 命名规范（v3.1.3 新增）
+
+### 文件名规则
+```
+- 必须小写 + 连字符（hyphen-case）
+- 严禁下划线、空格、大写字母
+- 严禁名字带 `[[]]` 这种歧义字符
+- 严禁名字跟链接语法撞车（"wiki-link" "wiki-links" 这种）
+```
+
+### 类别前缀
+```
+- 00-core/     — 身份/宪法/触发规则
+- 01-yang/     — YANG 个人档案
+- 02-knowledge/— 工具/技能/MCP
+- 03-system/   — 系统配置/cron/hook
+- 04-facts/    — 事实聚合
+- 99-temp/     — 临时隔离/审计/未升级
+```
+
+### Frontmatter 必填字段
+```
+---
+id: HERMES-{CATEGORY}-{NNN}    ← 例：HERMES-FACT-001
+title: 一句话标题
+type: identity|preference|rule|fact|knowledge|workflow|reference
+tags: [category, subcategory]
+trust: 0.3 ~ 1.0
+use_cases: ["何时召回"]
+source: SOUL.md L7 | fact_store#12 | 2026-06-26 对话
+last_updated: YYYY-MM-DD
+---
+```
+
+### 反例（命名违规）
+```
+- Wiki-Link.md         ❌ 大写
+- wiki_link.md         ❌ 下划线
+- wiki link.md         ❌ 空格
+- wiki-link.md         ❌ 跟链接语法撞车（用于描述"wiki 链接"概念）
+- 6.tools.md           ❌ 数字开头
+- tools-overview#anchor.md ❌ 带 # 锚点
+```
+
+---
 
 ### 7.1 召回回路故障
 
