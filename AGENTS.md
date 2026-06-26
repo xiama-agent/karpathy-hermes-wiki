@@ -25,7 +25,7 @@
 ```
 操作：读 D:\ai_schedule\hermes-brain\index.md
 目的：获得当前可用 wiki 类目的指针
-约束：注入版 ≤800 字，超过则报错（说明需要瘦身）
+约束：注入版 ≤1600 字，超过则报错（说明需要瘦身）
 ```
 
 ### 1.2 按类召回（不要全局 top-k）
@@ -39,6 +39,20 @@
   4. grep 类别目录找出最相关 1-3 个页面
   5. 读这些页面的 frontmatter 和首段
   6. 仅在上述召回不足时，才用 fact_store 兜底
+```
+
+### 1.2.1 路径问题强制预读（v3.1.4 新增）
+
+当问题涉及路径/目录/文件位置时，**必须先读** `wiki/02-knowledge/paths.md` 和 `paths-conventions.md`，不得凭印象回答。
+
+```
+触发：YANG 提问含路径关键词（路径/目录/文件夹/在哪/存哪/位置/绝对路径/相对路径）
+步骤：
+  1. 先 Read wiki/02-knowledge/paths.md
+  2. 再 Read wiki/02-knowledge/paths-conventions.md
+  3. 用这两页内容回答路径问题，不靠记忆
+  4. 如两页均未覆盖 → 主动告知 YANG"wiki 无此路径记录，需新建"并建议写入 paths.md
+约束：违反此条 → 路径答案不可信（v3.1.4 因凭印象回答 ~/.hermes 路径翻车）
 ```
 
 ### 1.3 召回失败兜底（小模型回退开关）
@@ -130,7 +144,7 @@ last_updated: 2026-06-26
 每次新建/升级/归档 wiki 页面后：
   1. 读 D:\ai_schedule\hermes-brain\index.md
   2. 找到对应分类，更新该行（带链接 + 一句话摘要）
-  3. 检查总字数 > 800 → 精简或拆分类
+  3. 检查总字数 > 1600 → 精简或拆分类
   4. 追加 log.md 一行：## [YYYY-MM-DD] ingest | {filename}
 ```
 
@@ -275,11 +289,13 @@ last_updated: YYYY-MM-DD
 
 ---
 
+## 第 7 章：错误处理
+
 ### 7.1 召回回路故障
 
 ```
 - INDEX.md 不存在 → 报"系统未初始化"给 YANG，停止对话
-- INDEX.md > 800 字 → 自动精简（合并相似分类，删除冷门）
+- INDEX.md > 1600 字 → 自动精简（合并相似分类，删除冷门）
 - grep 失败 → 用 PowerShell Select-String（Windows）替代
 ```
 
@@ -324,7 +340,7 @@ last_updated: YYYY-MM-DD
 | 临时隔离区 | `D:\ai_schedule\hermes-brain\wiki\99-temp\` |
 | 备份根 | `D:\ai_schedule\backup\` |
 | 宪法（不可改） | `C:\Users\YANG\AppData\Local\hermes\SOUL.md` |
-| 旧 fact_store（只读兜底） | `C:\Users\YANG\AppData\Local\hermes\memory_store.db` |
+| 旧 fact_store（只读兜底） | `C:\Users\YANG\AppData\Local\hermes\memory_store.db.legacy` |
 
 ---
 

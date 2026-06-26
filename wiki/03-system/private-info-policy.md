@@ -48,7 +48,7 @@ last_updated: 2026-06-26
 ## 相关链接
 - [[identity]] — 身份宪法
 - [[preferences]] — 偏好速查
-- [[SOUL.md]] — 完整宪法
+- SOUL.md（位于 `C:\Users\YANG\AppData\Local\hermes\SOUL.md`）— 完整宪法
 
 ## 紧急删除流程
 如果隐私信息**误入库**：

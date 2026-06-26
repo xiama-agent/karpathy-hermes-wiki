@@ -49,7 +49,7 @@ last_updated: 2026-06-26
 ├── skills/                              ← Hermes skill
 ├── profiles/                            ← 分身配置
 ├── state.db                             ← 会话数据库
-├── memory_store.db                      ← fact_store 语义记忆
+├── memory_store.db.legacy               ← fact_store 语义记忆（v3.0 熔断，只读兜底）
 └── SOUL.md                              ← 龙虾宪法
 ```
 
