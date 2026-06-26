@@ -10,6 +10,7 @@ use_cases:
   - "为什么 ~/.hermes/ 还有东西"
   - "路径出错了怎么排查"
 trust: 1
+source: AGENTS.md 第 1 章 | 2026-06-26 重构
 last_updated: 2026-06-26
 ---
 # 路径约定

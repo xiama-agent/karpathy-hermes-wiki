@@ -5,6 +5,7 @@ type: config
 tags: [system, backup, git]
 use_cases: ["数据怎么备份", "备份机制", "恢复方法"]
 trust: 0.9
+source: AGENTS.md 第 1 章 | 2026-06-26 重构
 last_updated: 2026-06-26
 ---
 # 备份体系

@@ -204,12 +204,14 @@ last_updated: YYYY-MM-DD
 - 具体操作优先写入 `log/{YYYY-MM-DD}.md`；目录不存在时创建。
 - 格式：`## [HH:mm:ss] {operation} | {description}`。
 - 操作类型：`ingest / query / lint / audit / forget / soul-sync / backfill / maintenance`。
+- 对话结束时由 topic-gate 的 `on_session_end/on_session_finalize` hook 调用 `node session-summary.js`；hook 不可用时手动执行 `node session-summary.js`。
 
 ### 4.3 信任系统
 
 - `trust` 表示可依赖程度，不表示重要程度。
 - 新事实默认 0.3；来源可靠、反复验证、用户确认后提高。
 - 被召回成功且对回答有帮助时提高；被用户纠正或发现冲突时降低。
+- 每次回答引用了 Wiki fact-id 后自动或等价执行：`node update-trust.js <fact-id> +0.1`。
 - `trust < 0.3` 且长期未更新的事实进入候选归档。
 
 ### 4.4 知识衰减
@@ -246,9 +248,13 @@ forget-cycle 规则：
 
 | 脚本 | 功能 | 状态 |
 |------|------|------|
-| `ingest.js` | raw/ → sources/ → 相关页面 → index/log | 待实现 |
-| `auto-retrieve.js` | 用户提问时检索 Wiki top-3 | 待实现 |
-| `answer-backfill.js` | 高质量回答回写 Wiki | 待实现 |
-| `lint.js` | 检查并支持 `--fix --dry-run` | 待增强 |
-| `forget-cycle.js` | 知识衰减与候选归档 | 待实现 |
-| `update-trust.js` | 召回反馈更新 trust | 已有，需接入流程 |
+| `ingest.js` | raw/ → sources/ → 相关页面 → index/log | 已实现，raw/ 5 文件已处理 |
+| `auto-retrieve.js` | 用户提问时检索 Wiki top-3，返回 trust/freshness/links | 已实现 |
+| `confidence-gate.js` | 回答前检查 Wiki 覆盖和 trust 门槛 | 已实现 |
+| `answer-backfill.js` | 高质量回答回写 Wiki | 已实现，触发需人工/Hook 确认 |
+| `topic-validation.js` | 验证 topic-detection 中 wiki_ids 是否真实存在 | 已接入 AGENTS/Hook |
+| `miss-rate-tracker.js` | 用户纠正后判断 Wiki 是否有信息、是否被检索到 | 已实现 |
+| `scene-index.js` | 自动生成 topic/tag → Wiki 页面映射 | 已实现 |
+| `lint.js` | 检查并支持 `--fix --dry-run` | 已增强 |
+| `forget-cycle.js` | 知识衰减与候选归档 | 已实现并已注册 cron |
+| `update-trust.js` | 召回反馈更新 trust / retrieval_count | 已接入流程，支持段落 fact 和 frontmatter 页 |

@@ -1,0 +1,44 @@
+{
+  "query": "测试",
+  "covered": true,
+  "trust": 1,
+  "trust_level": "high",
+  "matched_pages": [
+    {
+      "page": "wiki/00-core/triggers.md",
+      "title": "自动触发规则（什么时候自动干什么）",
+      "trust": 1,
+      "freshness": 1,
+      "score": 31
+    },
+    {
+      "page": "wiki/03-system/rsi-ledger.md",
+      "title": "RSI 账本 (Root-cause Self-Improvement)",
+      "trust": 0.95,
+      "freshness": 1,
+      "score": 31
+    },
+    {
+      "page": "wiki/01-yang/session-log/session-2026-06-26-193850.md",
+      "title": "会话摘要 — session-2026-06-26-193850",
+      "trust": 0.8,
+      "freshness": 1,
+      "score": 29
+    },
+    {
+      "page": "wiki/04-facts/general.md",
+      "title": "通用核心事实 (64 条)",
+      "trust": 0.6,
+      "freshness": 1,
+      "score": 27
+    },
+    {
+      "page": "wiki/02-knowledge/model-json-structure.md",
+      "title": "model.json配置结构说明",
+      "trust": 0.3,
+      "freshness": 1,
+      "score": 24
+    }
+  ],
+  "suggestion": "Wiki 已覆盖，可基于 Wiki 回答"
+}

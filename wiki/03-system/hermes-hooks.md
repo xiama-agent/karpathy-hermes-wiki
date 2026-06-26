@@ -9,6 +9,7 @@ use_cases:
   - "怎么用 hook 实现 topic-gate"
   - "plugin 怎么写"
 trust: 0.95
+source: AGENTS.md 第 1 章 | 2026-06-26 重构
 last_updated: 2026-06-26
 ---
 # Hermes Hook 系统

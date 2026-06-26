@@ -10,6 +10,7 @@ use_cases:
   - "任务单流程"
 related_skill: system/ai-scheduling
 trust: 0.9
+source: AGENTS.md 第 1 章 | 2026-06-26 重构
 last_updated: 2026-06-26
 ---
 # 多 AI 协作调度系统 (ai-schedule)

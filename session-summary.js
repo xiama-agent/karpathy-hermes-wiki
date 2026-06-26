@@ -4,6 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { getLocalDateString, getLocalTimeString } = require('./wiki-utils');
 
 const ROOT = path.resolve(__dirname);
 const SESSION_DIR = path.join(ROOT, 'wiki', '01-yang', 'session-log');
@@ -26,9 +27,8 @@ function parseArgs() {
 }
 
 function generateSessionId() {
-  const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10);
-  const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '');
+  const dateStr = getLocalDateString();
+  const timeStr = getLocalTimeString().replace(/:/g, '');
   return `session-${dateStr}-${timeStr}`;
 }
 
@@ -39,7 +39,7 @@ function writeSessionSummary(opts) {
   }
   
   const sessionId = generateSessionId();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDateString();
   const filename = `${sessionId}.md`;
   const filepath = path.join(SESSION_DIR, filename);
   
@@ -49,10 +49,19 @@ function writeSessionSummary(opts) {
   const todosList = opts.todos ? opts.todos.split(',').map(t => t.trim()) : [];
   
   // 生成内容
-  let content = `# 会话摘要 — ${sessionId}\n\n`;
+  let content = `---\n`;
+  content += `id: HERMES-SESSION-${sessionId}\n`;
+  content += `title: 会话摘要 — ${sessionId}\n`;
+  content += `type: session-log\n`;
+  content += `tags: [session, summary]\n`;
+  content += `trust: 0.8\n`;
+  content += `source: session-summary.js\n`;
+  content += `last_updated: ${today}\n`;
+  content += `---\n\n`;
+  content += `# 会话摘要 — ${sessionId}\n\n`;
   content += `> 自动生成 by session-summary.js\n`;
   content += `> 会话日期: ${today}\n`;
-  content += `> 会话结束时间: ${new Date().toTimeString().slice(0, 8)}\n\n`;
+  content += `> 会话结束时间: ${getLocalTimeString()}\n\n`;
   content += `---\n\n`;
   
   // 涉及主题

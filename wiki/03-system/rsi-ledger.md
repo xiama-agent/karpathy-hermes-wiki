@@ -5,6 +5,7 @@ type: fact-collection
 tags: [system, rsi, learning]
 use_cases: ["查询历史 RSI", "错误追踪", "自我改进记录", "方案 B 是否曾生效"]
 trust: 0.95
+source: AGENTS.md 第 1 章 | 2026-06-26 重构
 last_updated: 2026-06-26
 ---
 
