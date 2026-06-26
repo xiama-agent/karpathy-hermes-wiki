@@ -17,3 +17,10 @@ last_updated: 2026-06-26
 - Tailscale IP：100.66.248.108
 - 用途：Hermes + 微信网关 24h在线
 - 不支持：桌面画面查看（无VNC/RDP）
+
+
+## 相关链接（自动补充）
+
+- [[paths]]
+- [[ssh-config]]
+- [[desktop]]

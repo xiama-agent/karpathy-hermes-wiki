@@ -110,3 +110,10 @@ schtasks 注册 cron 必须用绝对路径（Windows 限制），这些文件允
 2. `python -c "from hermes_constants import HERMES_HOME; print(HERMES_HOME)"` → 确认 HERMES_HOME
 3. 路径出错的脚本 → 检查是 `Path(__file__)` 推导还是硬编码
 4. grep 全局搜硬编码: `grep -rn "C:.*Users.*hermes" scripts/ cron_jobs/ tests/` → 标记可改的
+
+
+## 相关链接（自动补充）
+
+- [[paths]]
+- [[hermes-home]]
+- [[scripts-conventions]]

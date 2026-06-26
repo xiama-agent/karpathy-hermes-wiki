@@ -16,3 +16,10 @@ last_updated: 2026-06-26
 - **支持**：PDF/Word/Excel/PPT/图片OCR/音频转文字/YouTube字幕
 - **有MCP Server**可集成AI工具
 - 处理文档时优先使用
+
+
+## 相关链接（自动补充）
+
+- [[doc-conversion]]
+- [[pdf]]
+- [[ocr]]

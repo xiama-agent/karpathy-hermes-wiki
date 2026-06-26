@@ -41,3 +41,8 @@ last_updated: 2026-06-26
 - task_008: 记忆系统升维 + 调度协议升级
 - task_009: Hermes Pre-Response Hook 机制调研 (7 道防线设计)
 - task_010: 7 道防线实施 (topic-gate plugin + scripts)
+
+
+## 相关链接
+
+- [[schedule-protocol]]  # 调度协议

@@ -27,3 +27,10 @@ last_updated: 2026-06-26
 - mmx-cli(1.0.16) 区域验证失败不可用
 - 只用 curl 直连
 - 支持 web_search 参数（联网搜索）
+
+
+## 相关链接（自动补充）
+
+- [[m3-coding]]
+- [[reasonix]]
+- [[budget]]

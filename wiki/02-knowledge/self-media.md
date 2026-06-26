@@ -33,3 +33,10 @@ last_updated: 2026-06-26
 
 ## 相关
 - [[ME-PRO-001]] 分身目录 (媒体龙虾在哪 + 跟编程龙虾分工)
+
+
+## 相关链接（自动补充）
+
+- [[hot-search]]
+- [[comment-mining]]
+- [[image-gen]]

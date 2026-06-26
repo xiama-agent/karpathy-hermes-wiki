@@ -29,3 +29,10 @@ last_updated: 2026-06-26
 ## 恢复
 - git checkout HEAD~1 恢复误删/损坏的文件
 - 每日备份保留 30 天滚动
+
+
+## 相关链接（自动补充）
+
+- [[backup-strategy]]
+- [[paths]]
+- [[cron]]

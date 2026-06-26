@@ -14,3 +14,10 @@ last_updated: 2026-06-26
 - **GUI桌面版**：`D:\Tools\Reasonix.exe\reasonix.exe`
 - 调用：`reasonix run "需求"`
 - 用途：复杂编码任务，调DeepSeek LLM
+
+
+## 相关链接（自动补充）
+
+- [[minimax-m3]]
+- [[coding]]
+- [[cli-tools]]

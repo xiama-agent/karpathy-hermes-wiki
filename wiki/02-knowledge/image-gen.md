@@ -26,3 +26,10 @@ last_updated: 2026-06-26
 
 ## 图片保存
 `$HERMES_HOME/cache/images/`
+
+
+## 相关链接（自动补充）
+
+- [[kolors]]
+- [[siliconflow]]
+- [[vision-ocr]]

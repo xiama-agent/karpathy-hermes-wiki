@@ -16,3 +16,10 @@ last_updated: 2026-06-26
 - **MCP模式**：`npx bb-browser --mcp`
 - **用途**：需登录态的网页（飞书/GitHub/知乎/微博/B站）
 - **触发**：需要登录→自动用bb-browser而非agent-browser
+
+
+## 相关链接（自动补充）
+
+- [[mcp-plugins]]
+- [[web-search]]
+- [[self-media]]

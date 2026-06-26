@@ -39,3 +39,10 @@ LIMIT 20
 
 - 历史 RSI 数据靠 git 跟踪 (fact_store 是 SQLite, 但每条 fact 写入即 commit)
 - 删除单条用 `DELETE FROM facts WHERE fact_id=?` (不推荐, 失去学习样本)
+
+
+## 相关链接（自动补充）
+
+- [[failure-tracking]]
+- [[auto-learning]]
+- [[cron]]

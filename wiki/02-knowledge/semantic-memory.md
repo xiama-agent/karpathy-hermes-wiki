@@ -16,3 +16,10 @@ last_updated: 2026-06-26
 - **命令**：`python semantic_memory.py <retain|recall|promote|list|stats|check>`
 - **首次调用**：自动下载模型（需hf-mirror.com）
 - **DB路径**：`~/.hermes/semantic_memory.db`
+
+
+## 相关链接（自动补充）
+
+- [[embedding]]
+- [[vec0]]
+- [[obsolete]]

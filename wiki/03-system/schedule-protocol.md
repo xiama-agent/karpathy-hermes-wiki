@@ -32,3 +32,10 @@ pending → claimed → in_progress → done / failed / partial / rerouted
 - done/failed/rerouted 保留 7 天 → 归档
 - 归档到 state/archive/YYYY-MM/
 - 1 年后删除
+
+
+## 相关链接（自动补充）
+
+- [[ai-schedule]]
+- [[mavis]]
+- [[hermes]]

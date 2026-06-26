@@ -26,3 +26,12 @@ last_updated: 2026-06-26
 
 ## 月度任务
 - 记忆系统体检：扫描死链/重复/过期/矛盾
+
+
+## 相关链接（自动补充）
+
+- [[hermes-hooks]]
+- [[auto-tasks]]
+- [[backup]]
+
+- [[rsi-ledger]]  # RSI 失败追踪
