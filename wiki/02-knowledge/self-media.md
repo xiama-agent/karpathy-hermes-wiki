@@ -5,7 +5,7 @@ type: workflow
 tags: [self-media, workflow]
 use_cases: ["怎么做自媒体", "热搜怎么查", "素材怎么整理"]
 source: SOUL.md 自媒体条目, fact_store#163-164
-related: [[ME-PRO-001]]
+related: [[profile]]
 related_skill: research/self-media-research
 trust: 0.9
 last_updated: 2026-06-26
@@ -32,11 +32,6 @@ last_updated: 2026-06-26
 - Newsletter结构化内容组织
 
 ## 相关
-- [[ME-PRO-001]] 分身目录 (媒体龙虾在哪 + 跟编程龙虾分工)
+- [[profile]] 分身目录 (媒体龙虾在哪 + 跟编程龙虾分工)
 
 
-## 相关链接（自动补充）
-
-- [[hot-search]]
-- [[comment-mining]]
-- [[image-gen]]

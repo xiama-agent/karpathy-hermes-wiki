@@ -31,8 +31,3 @@ last_updated: 2026-06-26
 - 每日备份保留 30 天滚动
 
 
-## 相关链接（自动补充）
-
-- [[backup-strategy]]
-- [[paths]]
-- [[cron]]

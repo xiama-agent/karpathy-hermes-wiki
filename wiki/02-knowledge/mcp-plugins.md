@@ -26,8 +26,3 @@ last_updated: 2026-06-26
 - SKILL.md格式，可社区共享
 
 
-## 相关链接（自动补充）
-
-- [[bb-browser]]
-- [[plugins]]
-- [[disk-cleanup]]

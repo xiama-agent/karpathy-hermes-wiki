@@ -29,8 +29,3 @@ last_updated: 2026-06-26
 - 支持 web_search 参数（联网搜索）
 
 
-## 相关链接（自动补充）
-
-- [[m3-coding]]
-- [[reasonix]]
-- [[budget]]

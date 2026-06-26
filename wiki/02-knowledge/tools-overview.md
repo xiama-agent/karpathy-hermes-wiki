@@ -27,10 +27,3 @@ OCR脚本（D:\Tools\HermesScripts\ocr.py）、PaddleOCR、ffmpeg（D:\Tools\ffm
 - TEMP：D:\Temp
 
 
-## 相关链接（自动补充）
-
-- [[npm-global]]
-- [[hermes-venv]]
-- [[paths]]
-
-- [[semantic-memory]]  # 语义记忆（已 obsolete）

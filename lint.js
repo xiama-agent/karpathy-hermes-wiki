@@ -48,6 +48,14 @@ function lintOrphanPages() {
       allLinks.add(link);
     }
   }
+  // Also include links from root INDEX.md (it's outside wiki/ but lists wiki pages)
+  const indexFile = path.join(ROOT, 'index.md');
+  if (fs.existsSync(indexFile)) {
+    const indexContent = fs.readFileSync(indexFile, 'utf8');
+    for (const link of extractLinks(indexContent)) {
+      allLinks.add(link);
+    }
+  }
   const orphans = [];
   for (const p of pages) {
     const rel = path.relative(WIKI, p).replace(/\\/g, '/').replace(/\.md$/, '');

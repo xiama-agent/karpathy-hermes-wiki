@@ -29,8 +29,3 @@ last_updated: 2026-06-26
 - 二十三火逆向设计法：读者想看到什么→主角→第一卷高潮→反推开篇
 
 
-## 相关链接（自动补充）
-
-- [[projects]]
-- [[twentythree-fire]]
-- [[writing]]

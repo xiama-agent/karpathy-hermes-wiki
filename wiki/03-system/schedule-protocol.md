@@ -34,8 +34,3 @@ pending → claimed → in_progress → done / failed / partial / rerouted
 - 1 年后删除
 
 
-## 相关链接（自动补充）
-
-- [[ai-schedule]]
-- [[mavis]]
-- [[hermes]]

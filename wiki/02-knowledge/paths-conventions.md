@@ -112,8 +112,3 @@ schtasks 注册 cron 必须用绝对路径（Windows 限制），这些文件允
 4. grep 全局搜硬编码: `grep -rn "C:.*Users.*hermes" scripts/ cron_jobs/ tests/` → 标记可改的
 
 
-## 相关链接（自动补充）
-
-- [[paths]]
-- [[hermes-home]]
-- [[scripts-conventions]]

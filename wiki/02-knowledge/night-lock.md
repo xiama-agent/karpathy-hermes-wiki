@@ -18,8 +18,3 @@ last_updated: 2026-06-26
 - **开机自启**：注册表 HKCU\...\Run\NightLock → `pythonw.exe D:\Tools\auto_tasks\night_lock.py`
 
 
-## 相关链接（自动补充）
-
-- [[auto-tasks]]
-- [[cron]]
-- [[desktop]]

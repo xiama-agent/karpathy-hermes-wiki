@@ -18,8 +18,3 @@ last_updated: 2026-06-26
 - **DB路径**：`~/.hermes/semantic_memory.db`
 
 
-## 相关链接（自动补充）
-
-- [[embedding]]
-- [[vec0]]
-- [[obsolete]]

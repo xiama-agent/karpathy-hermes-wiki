@@ -28,12 +28,3 @@ last_updated: 2026-06-26
 | Reasonix .env | C:\Users\YANG\AppData\Roaming\reasonix\.env |
 
 
-## 相关链接（自动补充）
-
-- [[paths-conventions]]
-- [[desktop]]
-- [[profile]]
-
-- [[aliyun]]  # 阿里云服务器
-
-- [[night-lock]]  # 夜间锁屏

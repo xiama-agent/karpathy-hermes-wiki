@@ -40,7 +40,7 @@ last_updated: 2026-06-26
 
 | 条件 | 自动做的事 |
 |------|-----------|
-| 新建 wiki 页面 | 检查能否和已有笔记做 `[[wiki-link]]` 交叉引用 |
+| 新建 wiki 页面 | 检查能否和已有笔记做 wiki 交叉引用 |
 | YANG 纠正了我 | 自动走"三道关卡"（AGENTS.md 第 2.1 节） |
 | 工具连续失败 ≥ 2 次 | 触发 RSI，记 `wiki/03-system/rsi-ledger.md` |
 | 周日 22:00 | 自动跑 Lint，写 `wiki/99-temp/lint-{date}.md` |

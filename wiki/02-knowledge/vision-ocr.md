@@ -26,8 +26,3 @@ last_updated: 2026-06-26
 - 在 Hermes venv 中可用
 
 
-## 相关链接（自动补充）
-
-- [[image-gen]]
-- [[markitdown]]
-- [[paddleocr]]

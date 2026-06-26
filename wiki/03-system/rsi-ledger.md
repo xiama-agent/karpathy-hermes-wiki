@@ -41,8 +41,3 @@ LIMIT 20
 - 删除单条用 `DELETE FROM facts WHERE fact_id=?` (不推荐, 失去学习样本)
 
 
-## 相关链接（自动补充）
-
-- [[failure-tracking]]
-- [[auto-learning]]
-- [[cron]]

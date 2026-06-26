@@ -44,8 +44,3 @@ last_updated: 2026-06-26
 - 第一次 shell hook 跑 → 弹窗请求一次性授权
 
 
-## 相关链接（自动补充）
-
-- [[cron-jobs]]
-- [[plugins]]
-- [[topic-gate]]

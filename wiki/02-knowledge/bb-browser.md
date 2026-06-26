@@ -18,8 +18,3 @@ last_updated: 2026-06-26
 - **触发**：需要登录→自动用bb-browser而非agent-browser
 
 
-## 相关链接（自动补充）
-
-- [[mcp-plugins]]
-- [[web-search]]
-- [[self-media]]
