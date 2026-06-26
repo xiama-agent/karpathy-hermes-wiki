@@ -25,32 +25,37 @@ last_updated: 2026-06-26
 
 ## 目录结构
 
-```
+```text
 %LOCALAPPDATA%/hermes/                  ← HERMES_HOME (运行根目录)
-├── second-brain/                        ← Wiki 第二大脑
-├── scripts/                             ← 工具脚本
-│   ├── hermes_constants.py              ← 路径常量 (推荐引用方式)
-│   ├── wiki_lint.py
-│   ├── corrections.py
-│   ├── link_facts_to_wiki.py
-│   ├── memory_retriever.py
-│   ├── projects.py
-│   └── ...
-├── cron_jobs/                           ← 定时任务
-│   ├── contradiction-detector.py
-│   ├── weekly-review.py
-│   ├── knowledge-extractor.py
-│   ├── corrections-extractor.py
-│   └── auto-commit.py
+├── logs/                                ← 日志
 ├── plugins/                             ← Hermes 插件
 │   └── topic-gate/
-├── logs/                                ← 日志
-├── harness/                             ← Harness 进度文件
 ├── skills/                              ← Hermes skill
 ├── profiles/                            ← 分身配置
 ├── state.db                             ← 会话数据库
 ├── memory_store.db.legacy               ← fact_store 语义记忆（v3.0 熔断，只读兜底）
 └── SOUL.md                              ← 龙虾宪法
+
+D:\ai_schedule\hermes-brain\             ← BRAIN_ROOT (大脑本体)
+├── index.md                             ← 注入索引（每轮注入）
+├── AGENTS.md                            ← 操作手册
+├── recall.js                            ← 召回入口
+├── lint.js                              ← 健康检查
+├── fix-dead-links.js                    ← 死链修复
+├── fix-orphans.js                       ← 孤立页修复
+├── fix-trust.js                         ← trust 修复
+├── activate-trust.js                    ← trust 激活
+├── regenerate-user-pref.js              ← 用户偏好重建
+├── wiki-link-builder.js                 ← 链接构建
+├── log.md                               ← 操作日志
+├── wiki/                                ← Wiki 主区
+│   ├── 00-core/                         ← 核心（身份/偏好/触发）
+│   ├── 01-yang/                         ← 关于 YANG
+│   ├── 02-knowledge/                    ← 工具/MCP/技能
+│   ├── 03-system/                       ← 系统配置/cron
+│   ├── 04-facts/                        ← 事实聚合
+│   └── 99-temp/                         ← 临时/审计/隔离
+└── raw/                                 ← 原始资料
 ```
 
 ---

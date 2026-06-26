@@ -15,7 +15,7 @@ last_updated: 2026-06-26
 | SOUL.md | C:\Users\YANG\AppData\Local\hermes\SOUL.md |
 | Hermes配置 | C:\Users\YANG\AppData\Local\hermes\config.yaml |
 | Hermes .env | C:\Users\YANG\AppData\Local\hermes\.env |
-| Wiki（第二大脑） | ~/.hermes/second-brain/ |
+| Wiki（第二大脑） | D:\ai_schedule\hermes-brain\wiki\ |
 | Obsidian笔记库 | D:\文档\数据库总文件夹\obsidian\ |
 | Obsidian MCP | 127.0.0.1:27124 |
 | 桌面 | D:\Users\YANG\Desktop |
