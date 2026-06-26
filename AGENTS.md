@@ -38,7 +38,7 @@
   3. 读 wiki/{category}/INDEX.md（如存在）
   4. grep 类别目录找出最相关 1-3 个页面
   5. 读这些页面的 frontmatter 和首段
-  6. 仅在上述召回不足时，才用 fact_store 兜底
+  6. 仅在上述召回不足时，用 SOUL.md 核心 7 条兜底（v3.1.5: fact_store 已熔断删除, 不再走 fallback DB）
 ```
 
 ### 1.2.1 路径问题强制预读（v3.1.4 新增）
@@ -353,7 +353,7 @@ last_updated: YYYY-MM-DD
 2. 不得删除 AGENTS.md 任何章节
 3. 不得在 wiki 中存储密码、API key、私密 token
 4. 不得在没有 YANG 确认的情况下删除 wiki 任何已有页面（只能归档）
-5. 不得修改 fact_store 数据库 schema（写入受信任，但表结构只读）
+5. ~~不得修改 fact_store 数据库 schema（写入受信任，但表结构只读）~~ (v3.1.5: fact_store 已删除, 此条作废)
 6. 不得在 git 未提交的情况下关闭终端（必须先 commit）
 
 ---

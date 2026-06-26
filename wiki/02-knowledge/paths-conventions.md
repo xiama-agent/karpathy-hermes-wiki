@@ -33,8 +33,8 @@ last_updated: 2026-06-26
 ├── skills/                              ← Hermes skill
 ├── profiles/                            ← 分身配置
 ├── state.db                             ← 会话数据库
-├── memory_store.db.legacy               ← fact_store 语义记忆（v3.0 熔断，只读兜底）
 └── SOUL.md                              ← 龙虾宪法
+(注: v3.1.5 后 memory_store.db.legacy 已删除, 04-facts 接管语义记忆)
 
 D:\ai_schedule\hermes-brain\             ← BRAIN_ROOT (大脑本体)
 ├── index.md                             ← 注入索引（每轮注入）

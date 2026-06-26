@@ -128,10 +128,12 @@ function lintIndexSize() {
   const idxPath = path.join(ROOT, 'index.md');
   if (!fs.existsSync(idxPath)) return null;
   const content = fs.readFileSync(idxPath, 'utf8');
-  // Count Chinese chars + ASCII chars as approximation
+  // Count Chinese chars + bytes (utf8)
   const zh = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
-  const total = content.length;
-  return { path: 'index.md', bytes: total, chinese_chars: zh };
+  // v3.1.5 fix: 之前用 content.length (UTF-16 code units, ~字符数), 不是字节数
+  // 现在用 Buffer.byteLength 拿真实字节数
+  const bytes = Buffer.byteLength(content, 'utf8');
+  return { path: 'index.md', bytes, chinese_chars: zh };
 }
 
 // ===== v3.1.5 新增：99-temp 候选文件清理规则 =====
