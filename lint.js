@@ -1,696 +1,269 @@
-// lint.js — Wiki 健康检查 (per AGENTS.md 第 3 章)
-// 跑法：node lint.js [--auto-fix] [--auto-clean]
-// 输出：wiki/99-temp/lint-{YYYY-MM-DD}.md
-//
-// v3.1.5 新增:
-//   - --auto-fix: 自动修复孤立页 (改名/重写 inbound link) 和 frontmatter 缺失字段
-//   - --auto-clean: 真删除过期候选 (low confidence + >7 天)
-//                  默认仅报告, 不真删 (per AGENTS.md 2.1 关卡 3)
-//                  7 天未升级 → 删; 14 天未升级 (high conf) → 标记
-//   - 关闭 missed-recall: >14 天的 missed-recall 文件重命名加 -closed 后缀
+'use strict';
+
+// lint.js — Wiki 健康检查与自动修复
+// 用法：node lint.js [--fix] [--dry-run]
 
 const fs = require('fs');
 const path = require('path');
+const {
+  ROOT,
+  WIKI,
+  INDEX_FILE,
+  ARCHIVE,
+  TEMP,
+  REQUIRED_FIELDS,
+  ensureBaseDirs,
+  walkMarkdown,
+  parseFrontmatter,
+  formatFrontmatter,
+  readMarkdown,
+  writeMarkdown,
+  upsertIndexEntry,
+  appendLog,
+  missingFrontmatterFields,
+  addRelatedLink,
+  wikiLinkFromPath,
+  summarizeText
+} = require('./wiki-utils');
 
-const ROOT = 'D:\\ai_schedule\\hermes-brain';
-const WIKI = path.join(ROOT, 'wiki');
-const TEMP = path.join(WIKI, '99-temp');
-
-function walkPages(dir, list = []) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) walkPages(full, list);
-    else if (entry.name.endsWith('.md')) list.push(full);
-  }
-  return list;
+function parseArgs() {
+  const args = process.argv.slice(2);
+  return {
+    fix: args.includes('--fix'),
+    dryRun: args.includes('--dry-run')
+  };
 }
 
-function extractFrontmatter(content) {
-  const m = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
-  if (!m) return null;
-  return m[1];
+function getAllPages() {
+  return walkMarkdown(WIKI).filter(file => !file.includes(`${path.sep}99-temp${path.sep}`));
 }
 
 function extractLinks(content) {
-  // Find [[wiki-link]] and bare link references
   const links = [];
-  const linkRe = /\[\[([^\]]+)\]\]/g;
-  let m;
-  while ((m = linkRe.exec(content)) !== null) {
-    links.push(m[1].trim());
+  const re = /\[\[([^\]]+)\]\]/g;
+  let match;
+  while ((match = re.exec(content)) !== null) {
+    links.push(match[1].trim());
   }
   return links;
 }
 
-function getAllPages() {
-  return walkPages(WIKI).filter(f => !f.includes('99-temp'));
-}
-
 function lintFrontmatter() {
-  const requiredFields = ['id', 'title', 'type', 'tags', 'trust', 'last_updated'];
   const issues = [];
-  const pages = getAllPages();
-  for (const p of pages) {
-    const content = fs.readFileSync(p, 'utf8');
-    const fmMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
-    if (!fmMatch) {
-      issues.push({ file: path.relative(WIKI, p), issue: 'missing frontmatter' });
+  for (const file of getAllPages()) {
+    const parsed = parseFrontmatter(readMarkdown(file));
+    if (!parsed.data) {
+      issues.push({ file, issue: 'missing frontmatter' });
       continue;
     }
-    const fm = fmMatch[1];
-    for (const field of requiredFields) {
-      const re = new RegExp(`^${field}:`, 'm');
-      if (!re.test(fm)) {
-        issues.push({ file: path.relative(WIKI, p), issue: `missing field: ${field}` });
-      }
+    for (const field of missingFrontmatterFields(parsed.data)) {
+      issues.push({ file, issue: `missing field: ${field}` });
     }
   }
   return issues;
 }
 
-function lintOrphanPages() {
+function lintOrphans() {
   const pages = getAllPages();
-  const allLinks = new Set();
-  for (const p of pages) {
-    const content = fs.readFileSync(p, 'utf8');
+  const inbound = new Set();
+  for (const file of pages) {
+    const content = readMarkdown(file);
     for (const link of extractLinks(content)) {
-      allLinks.add(link);
+      inbound.add(link.replace(/\.md$/, ''));
     }
   }
-  // Also include links from root INDEX.md (it's outside wiki/ but lists wiki pages)
-  const indexFile = path.join(ROOT, 'index.md');
-  if (fs.existsSync(indexFile)) {
-    const indexContent = fs.readFileSync(indexFile, 'utf8');
-    for (const link of extractLinks(indexContent)) {
-      allLinks.add(link);
+  if (fs.existsSync(INDEX_FILE)) {
+    for (const link of extractLinks(readMarkdown(INDEX_FILE))) {
+      inbound.add(link.replace(/\.md$/, ''));
     }
   }
+
   const orphans = [];
-  for (const p of pages) {
-    const rel = path.relative(WIKI, p).replace(/\\/g, '/').replace(/\.md$/, '');
-    const name = path.basename(p, '.md');
-    // Has incoming link if its name OR full path is in allLinks
-    const hasInbound = allLinks.has(name) || allLinks.has(rel);
-    if (!hasInbound && !name.startsWith('index') && !rel.includes('INDEX')) {
-      orphans.push({ file: rel, name });
+  for (const file of pages) {
+    const rel = path.relative(WIKI, file).replace(/\\/g, '/').replace(/\.md$/, '');
+    const fullRel = path.relative(ROOT, file).replace(/\\/g, '/').replace(/\.md$/, '');
+    const name = path.basename(file, '.md');
+    if (!inbound.has(rel) && !inbound.has(fullRel) && !inbound.has(name) && !rel.startsWith('98-archive/') && !rel.startsWith('99-temp/')) {
+      orphans.push({ file, rel, name });
     }
   }
   return orphans;
 }
 
-function lintExpiringFacts() {
-  const now = new Date();
-  const cutoff30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+function lintArchiveCandidates() {
+  const now = Date.now();
+  const cutoff = 30 * 24 * 60 * 60 * 1000;
   const candidates = [];
-
-  for (const cat of ['04-facts']) {
-    const dir = path.join(WIKI, cat);
-    if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir)) {
-      if (!f.endsWith('.md')) continue;
-      const full = path.join(dir, f);
-      const content = fs.readFileSync(full, 'utf8');
-      const fm = extractFrontmatter(content);
-      if (!fm) continue;
-      const trustMatch = fm.match(/^trust:\s*([\d.]+)/m);
-      const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
-      const trust = trustMatch ? parseFloat(trustMatch[1]) : 1;
-      const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
-      if (trust < 0.3 && updated < cutoff30) {
-        candidates.push({ file: path.relative(ROOT, full), trust, updated });
-      }
+  for (const file of walkMarkdown(path.join(WIKI, '04-facts'))) {
+    const parsed = parseFrontmatter(readMarkdown(file));
+    if (!parsed.data) continue;
+    const trust = Number(parsed.data.trust || 1);
+    const updated = new Date(parsed.data.last_updated || 0);
+    if (trust < 0.3 && now - updated.getTime() > cutoff) {
+      candidates.push({ file, trust, updated });
     }
   }
   return candidates;
 }
 
-// ===== v3.0 F3 新增：知识生命周期检查 =====
-function lintKnowledgeLifecycle() {
-  // 规则 (per F3 任务单):
-  //   - last_updated > 30天 且 retrieval_count=0 → 标记"候选归档"
-  //   - 归档后 > 90 天 → 真删
-  const now = new Date();
-  const cutoff30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const cutoff90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-  const archiveCandidates = [];
-  const deleteCandidates = [];
-
-  for (const cat of ['04-facts']) {
-    const dir = path.join(WIKI, cat);
-    if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir)) {
-      if (!f.endsWith('.md')) continue;
-      const full = path.join(dir, f);
-      const content = fs.readFileSync(full, 'utf8');
-      const fm = extractFrontmatter(content);
-      if (!fm) continue;
-
-      const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
-      const retrievalMatch = fm.match(/^retrieval_count:\s*(\d+)/m);
-      const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
-      const retrievalCount = retrievalMatch ? parseInt(retrievalMatch[1]) : 0;
-
-      // 检查候选归档条件
-      if (updated < cutoff30 && retrievalCount === 0) {
-        archiveCandidates.push({ 
-          file: path.relative(ROOT, full), 
-          updated,
-          retrievalCount,
-          reason: '30天未更新且无召回记录'
-        });
-      }
-
-      // 检查归档文件删除条件
-      if (cat === '98-archive') {
-        if (updated < cutoff90) {
-          deleteCandidates.push({ 
-            file: path.relative(ROOT, full), 
-            updated,
-            reason: '归档超过90天'
-          });
-        }
-      }
-    }
-  }
-
-  return { archiveCandidates, deleteCandidates };
+function lintIndexHealth() {
+  if (!fs.existsSync(INDEX_FILE)) return { exists: false, missing: [] };
+  const content = readMarkdown(INDEX_FILE);
+  const links = extractLinks(content);
+  const missing = links.filter(link => {
+    const normalized = link.replace(/^wiki\//, 'wiki/');
+    return !fs.existsSync(path.join(ROOT, normalized.replace(/\//g, path.sep)));
+  });
+  return { exists: true, bytes: Buffer.byteLength(content, 'utf8'), missing };
 }
 
-function lintIndexSize() {
-  const idxPath = path.join(ROOT, 'index.md');
-  if (!fs.existsSync(idxPath)) return null;
-  const content = fs.readFileSync(idxPath, 'utf8');
-  // Count Chinese chars + bytes (utf8)
-  const zh = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
-  // v3.1.5 fix: 之前用 content.length (UTF-16 code units, ~字符数), 不是字节数
-  // 现在用 Buffer.byteLength 拿真实字节数
-  const bytes = Buffer.byteLength(content, 'utf8');
-  return { path: 'index.md', bytes, chinese_chars: zh };
+function inferParentPage(orphan) {
+  const dir = path.dirname(orphan.file);
+  const indexCandidate = path.join(dir, 'index.md');
+  if (fs.existsSync(indexCandidate) && indexCandidate !== orphan.file) return indexCandidate;
+  const siblings = walkMarkdown(dir).filter(file => file !== orphan.file);
+  if (siblings.length === 1) return siblings[0];
+  return null;
 }
 
-// ===== v3.1.5 新增：99-temp 候选文件清理规则 =====
-function lintCandidateCleanup(autoClean = false) {
-  // 规则 (per AGENTS.md 2.1 关卡 3):
-  //   - confidence: low + 创建 > 7 天 → 默认"建议删除", --auto-clean 时真删
-  //   - confidence: medium + 创建 > 10 天 → "建议 review"
-  //   - confidence: high + 创建 > 14 天 → "人工确认(>14天未升级)"
-  //   - 无 confidence 字段 → 用 trust 值推断 (trust < 0.5 视为 low)
-  // v3.0 F5 新增: 候选堆积 > 14 天 → 自动删 (无需判断 confidence)
-  const candidates = [];
-  const deleted = [];
-  if (!fs.existsSync(TEMP)) return { candidates, deleted };
+function fixFrontmatter(page, dryRun) {
+  const content = readMarkdown(page.file);
+  const parsed = parseFrontmatter(content);
+  const defaults = {
+    id: `HERMES-${path.basename(page.file, '.md')}`,
+    title: path.basename(page.file, '.md'),
+    type: page.file.includes(`${path.sep}04-facts${path.sep}`) ? 'fact' : 'knowledge',
+    tags: [path.basename(path.dirname(page.file))],
+    trust: 0.3,
+    source: 'lint-fix',
+    last_updated: new Date().toISOString().slice(0, 10)
+  };
 
-  const now = Date.now();
-  const dayMs = 24 * 60 * 60 * 1000;
-
-  for (const f of fs.readdirSync(TEMP)) {
-    if (!f.startsWith('candidate-') || !f.endsWith('.md')) continue;
-    // 跳过已经关闭的
-    if (f.includes('-closed')) continue;
-    const full = path.join(TEMP, f);
-    let content, fm = null, stat;
-    try {
-      content = fs.readFileSync(full, 'utf8');
-      stat = fs.statSync(full);
-    } catch (e) { continue; }
-    const m = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
-    if (m) fm = m[1];
-
-    let confidence = null;
-    if (fm) {
-      const confMatch = fm.match(/^confidence:\s*(\w+)/m);
-      if (confMatch) confidence = confMatch[1].toLowerCase();
-      else {
-        const trustMatch = fm.match(/^trust:\s*([\d.]+)/m);
-        const trust = trustMatch ? parseFloat(trustMatch[1]) : 0.5;
-        confidence = trust < 0.5 ? 'low' : (trust < 0.7 ? 'medium' : 'high');
-      }
-    } else {
-      confidence = 'low';  // 无 frontmatter 默认 low
-    }
-
-    // 创建时间: frontmatter 的 last_updated/extracted_at/created_at, 否则 mtime
-    let created = stat.birthtime;
-    if (fm) {
-      const lu = fm.match(/^(?:last_updated|extracted_at|created_at):\s*(\S+)/m);
-      if (lu) {
-        const d = new Date(lu[1]);
-        if (!isNaN(d.getTime())) created = d;
-      }
-    }
-    const ageDays = (now - created.getTime()) / dayMs;
-
-    let action = null;
-    // v3.0 F5 新增: 候选堆积 > 14 天 → 自动删
-    if (ageDays > 14) {
-      action = '删除(>14天未升级)';
-      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
-      // auto-fix: >14 天自动删除
-      if (autoClean) {
-        try {
-          fs.unlinkSync(full);
-          deleted.push(f);
-        } catch (e) {
-          candidates[candidates.length - 1].action = '删除失败: ' + e.message;
-        }
-      }
-    } else if (confidence === 'low' && ageDays > 7) {
-      action = '删除';
-      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
-      // auto-clean: 低置信度 + >7 天 → 真删
-      if (autoClean) {
-        try {
-          fs.unlinkSync(full);
-          deleted.push(f);
-        } catch (e) {
-          candidates[candidates.length - 1].action = '删除失败: ' + e.message;
-        }
-      }
-    } else if (confidence === 'high' && ageDays > 14) {
-      action = '人工确认(>14天未升级)';
-      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
-    } else if (confidence === 'medium' && ageDays > 10) {
-      action = '建议 review';
-      candidates.push({ file: f, confidence, ageDays: Math.round(ageDays), action });
+  const data = parsed.data || {};
+  for (const field of REQUIRED_FIELDS) {
+    if (data[field] === undefined || data[field] === null || data[field] === '') {
+      data[field] = defaults[field];
     }
   }
 
-  return { candidates, deleted };
+  const next = `${formatFrontmatter(data)}\n${parsed.body.trim()}\n`;
+  if (!dryRun) writeMarkdown(page.file, next);
+  return `frontmatter fixed: ${path.relative(ROOT, page.file).replace(/\\/g, '/')}`;
 }
 
-// ===== v3.1.5 新增: missed-recall 自动关闭 (>14 天) =====
-function lintMissedRecallClose(autoClose = false) {
-  // 规则 (per AGENTS.md 1.3):
-  //   - missed-recall-{date}.md > 14 天 → 重命名加 -closed 后缀 (autoClose=true)
-  //   - 默认仅报告, 不动文件
-  const items = [];
-  const closed = [];
-  if (!fs.existsSync(TEMP)) return { items, closed };
-
-  const now = Date.now();
-  const dayMs = 24 * 60 * 60 * 1000;
-  const cutoff = now - 14 * dayMs;
-
-  for (const f of fs.readdirSync(TEMP)) {
-    if (!f.startsWith('missed-recall-') || !f.endsWith('.md')) continue;
-    if (f.includes('-closed')) continue;
-
-    const m = f.match(/missed-recall-(\d{4}-\d{2}-\d{2})/);
-    if (!m) continue;
-    const fileDate = new Date(m[1]);
-    if (isNaN(fileDate.getTime())) continue;
-
-    const ageDays = (now - fileDate.getTime()) / dayMs;
-    if (ageDays > 14) {
-      const full = path.join(TEMP, f);
-      items.push({ file: f, ageDays: Math.round(ageDays), action: '关闭(>14天)' });
-      if (autoClose) {
-        try {
-          const newName = f.replace(/\.md$/, '-closed.md');
-          fs.renameSync(full, path.join(TEMP, newName));
-          closed.push({ from: f, to: newName });
-        } catch (e) {
-          items[items.length - 1].action = '关闭失败: ' + e.message;
-        }
-      }
-    }
-  }
-  return { items, closed };
+function fixIndexEntry(file, dryRun) {
+  const content = readMarkdown(file);
+  const parsed = parseFrontmatter(content);
+  const title = parsed.data && parsed.data.title ? parsed.data.title : path.basename(file, '.md');
+  const description = summarizeText(parsed.body, 90);
+  upsertIndexEntry(file, title, description, dryRun);
+  return `index updated: ${path.relative(ROOT, file).replace(/\\/g, '/')}`;
 }
 
-function lintAll() {
-  const today = new Date().toISOString().slice(0, 10);
-  const report = [];
-  report.push(`# Lint Report — ${today}\n`);
-  report.push(`> 自动生成 by lint.js，详见 AGENTS.md 第 3 章\n\n---\n`);
-
-  // 1. Orphan pages
-  const orphans = lintOrphanPages();
-  report.push(`## 孤立页 (${orphans.length})\n`);
-  if (orphans.length === 0) {
-    report.push('- 无 ✅\n');
-  } else {
-    orphans.forEach(o => report.push(`- ${o.file}\n`));
+function fixOrphan(orphan, dryRun) {
+  const parent = inferParentPage(orphan);
+  if (!parent) {
+    return { fixed: false, message: `needs review: ${path.relative(ROOT, orphan.file).replace(/\\/g, '/')}` };
   }
-  report.push('\n');
-
-  // 2. Expiring facts
-  const expiring = lintExpiringFacts();
-  report.push(`## 候选归档 (${expiring.length})\n`);
-  if (expiring.length === 0) {
-    report.push('- 无 ✅\n');
-  } else {
-    expiring.forEach(e => report.push(`- ${e.file} (trust: ${e.trust}, updated: ${e.updated.toISOString().slice(0, 10)})\n`));
-  }
-  report.push('\n');
-
-  // 2.5 知识生命周期检查 (F3 新增)
-  const lifecycle = lintKnowledgeLifecycle();
-  report.push(`## 知识生命周期 (${lifecycle.archiveCandidates.length + lifecycle.deleteCandidates.length})\n`);
-  
-  if (lifecycle.archiveCandidates.length === 0 && lifecycle.deleteCandidates.length === 0) {
-    report.push('- 生命周期健康 ✅\n');
-  } else {
-    if (lifecycle.archiveCandidates.length > 0) {
-      report.push(`### 候选归档 (${lifecycle.archiveCandidates.length})\n`);
-      report.push(`| 文件 | 更新日期 | 召回次数 | 原因 |\n`);
-      report.push(`|---|---|---|---|\n`);
-      lifecycle.archiveCandidates.forEach(c => {
-        report.push(`| ${c.file} | ${c.updated.toISOString().slice(0, 10)} | ${c.retrievalCount} | ${c.reason} |\n`);
-      });
-    }
-    
-    if (lifecycle.deleteCandidates.length > 0) {
-      report.push(`### 候选真删 (${lifecycle.deleteCandidates.length})\n`);
-      report.push(`| 文件 | 更新日期 | 原因 |\n`);
-      report.push(`|---|---|---|\n`);
-      lifecycle.deleteCandidates.forEach(c => {
-        report.push(`| ${c.file} | ${c.updated.toISOString().slice(0, 10)} | ${c.reason} |\n`);
-      });
-    }
-  }
-  report.push('\n');
-
-  // 3. INDEX size
-  const idx = lintIndexSize();
-  report.push(`## INDEX 健康\n`);
-  if (idx) {
-    const status = idx.bytes <= 1600 ? '✅ 健康' : '⚠️ 超 1600 bytes';
-    report.push(`- ${idx.path}: ${idx.bytes} bytes / 约 ${idx.chinese_chars} 汉字 (${status})\n`);
-  } else {
-    report.push('- INDEX.md 不存在 ❌\n');
-  }
-  report.push('\n');
-
-  // 3.5 Frontmatter check
-  const fmIssues = lintFrontmatter();
-  report.push(`## Frontmatter 必填字段 (${fmIssues.length} 处问题)\n`);
-  if (fmIssues.length === 0) {
-    report.push('- 所有页面都通过校验 ✅\n');
-  } else {
-    fmIssues.slice(0, 10).forEach(i => report.push(`- ${i.file}: ${i.issue}\n`));
-    if (fmIssues.length > 10) {
-      report.push(`- ... 还有 ${fmIssues.length - 10} 处\n`);
-    }
-  }
-  report.push('\n');
-
-  // 3.6 候选清理建议 (v3.1.5)
-  const candResult = lintCandidateCleanup(_AUTO_CLEAN);
-  report.push(`## 候选清理建议 (${candResult.candidates.length} 项${candResult.deleted.length ? `, ${candResult.deleted.length} 已删` : ''})\n`);
-  if (candResult.candidates.length === 0 && candResult.deleted.length === 0) {
-    report.push('- 无需处理 ✅\n');
-  } else {
-    if (candResult.candidates.length > 0) {
-      report.push(`| 文件 | confidence | 年龄 | 建议操作 |\n`);
-      report.push(`|---|---|---|---|\n`);
-      candResult.candidates.forEach(c => {
-        report.push(`| ${c.file} | ${c.confidence} | ${c.ageDays}天 | ${c.action} |\n`);
-      });
-    }
-    if (candResult.deleted.length > 0) {
-      report.push(`\n**已删除 (--auto-clean)**：${candResult.deleted.length} 个文件\n`);
-      candResult.deleted.forEach(f => report.push(`- ${f}\n`));
-    }
-    report.push(`\n**行动**：\n`);
-    report.push(`- 删除：可手动 mavis-trash 或跑 \`node lint.js --auto-clean\`\n`);
-    report.push(`- 人工确认：review 后决定升级到正式 Wiki 页 or 删除\n`);
-  }
-  report.push('\n');
-
-  // 3.7 Missed-recall 自动关闭建议 (v3.1.5)
-  const missResult = lintMissedRecallClose(_AUTO_CLEAN);
-  if (missResult.items.length > 0 || missResult.closed.length > 0) {
-    report.push(`## Missed-recall 自动关闭建议 (${missResult.items.length} 项${missResult.closed.length ? `, ${missResult.closed.length} 已关闭` : ''})\n`);
-    if (missResult.items.length > 0) {
-      report.push(`| 文件 | 年龄 | 建议 |\n|---|---|---|\n`);
-      missResult.items.forEach(m => report.push(`| ${m.file} | ${m.ageDays}天 | ${m.action} |\n`));
-    }
-    if (missResult.closed.length > 0) {
-      report.push(`\n**已关闭 (--auto-clean)**：${missResult.closed.length} 个文件\n`);
-      missResult.closed.forEach(c => report.push(`- ${c.from} → ${c.to}\n`));
-    }
-    report.push(`\n> 关闭 ≠ 删除: 文件加 -closed 后缀, 内容保留, 30 天后可再 lint 决定真删\n\n`);
-  }
-
-  // 4. Missed recall (compat: keep old section)
-  report.push(`## 召回失败记录\n`);
-  let missedOld = missResult.items.length;
-  if (fs.existsSync(TEMP)) {
-    const missed = fs.readdirSync(TEMP).filter(f => f.startsWith('missed-recall-') && !f.includes('-closed'));
-    report.push(`- 共 ${missed.length} 条进行中的失败记录\n`);
-    if (missed.length > 0) {
-      missed.slice(-10).forEach(m => {
-        const dateMatch = m.match(/missed-recall-(\d{4}-\d{2}-\d{2})/);
-        if (dateMatch) {
-          const fileDate = new Date(dateMatch[1]);
-          if (fileDate < new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)) {
-            if (missedOld === 0) missedOld++;  // 已经被 3.7 节报告过的不重复
-            report.push(`  - ⚠️ ${m} (>14天，建议升级或归档)\n`);
-          } else {
-            report.push(`  - ${m}\n`);
-          }
-        } else {
-          report.push(`  - ${m}\n`);
-        }
-      });
-      if (missedOld > 0) {
-        report.push(`\n**⚠️ 升级建议**：${missedOld} 个 missed-recall 文件超过 14 天未升级\n`);
-        report.push(`- 行动：要么新建 wiki 页面消化这些缺口, 要么归档(跑 lint --auto-clean 自动关闭)\n`);
-      }
-    }
-  } else {
-    report.push('- 99-temp 目录不存在\n');
-  }
-  report.push('\n');
-
-  // Summary
-  report.push(`---\n\n## 总结\n`);
-  report.push(`- Wiki 总页面数: ${getAllPages().length}\n`);
-  report.push(`- 孤立页: ${orphans.length}\n`);
-  report.push(`- 候选归档: ${expiring.length}\n`);
-  report.push(`- 候选待清理: ${candResult.candidates.length} (${candResult.deleted.length} 已自动删)\n`);
-  report.push(`- 召回失败 (>14天): ${missedOld} (${missResult.closed.length} 已自动关闭)\n`);
-  report.push(`- INDEX ${idx ? idx.bytes : '?'} bytes\n`);
-  report.push(`- 生命周期: ${lifecycle.archiveCandidates.length} 候选归档, ${lifecycle.deleteCandidates.length} 候选删除\n`);
-
-  return report.join('');
+  const content = readMarkdown(parent);
+  const parsed = parseFrontmatter(content);
+  const nextBody = addRelatedLink(parsed.body, wikiLinkFromPath(orphan.file));
+  const next = parsed.data ? `${formatFrontmatter(parsed.data)}\n${nextBody.trim()}\n` : nextBody;
+  if (!dryRun) writeMarkdown(parent, next);
+  return {
+    fixed: true,
+    message: `orphan linked: ${path.relative(ROOT, orphan.file).replace(/\\/g, '/')} -> ${path.relative(ROOT, parent).replace(/\\/g, '/')}`
+  };
 }
 
-// ===== v3.0 F5 新增：孤立页自动修复 =====
-function autoFixOrphanPages() {
-  const idxPath = path.join(ROOT, 'index.md');
-  if (!fs.existsSync(idxPath)) return { fixed: 0, skipped: 0 };
+function archiveFact(item, dryRun) {
+  const target = path.join(ARCHIVE, path.basename(item.file));
+  const content = readMarkdown(item.file);
+  if (!dryRun) {
+    writeMarkdown(target, content);
+    fs.unlinkSync(item.file);
+  }
+  upsertIndexEntry(target, path.basename(target, '.md'), 'archived by lint --fix', dryRun);
+  return `archived: ${path.relative(ROOT, item.file).replace(/\\/g, '/')} -> ${path.relative(ROOT, target).replace(/\\/g, '/')}`;
+}
+
+function autoFix(options) {
+  const actions = [];
+  const reviews = [];
+
+  for (const orphan of lintOrphans()) {
+    const result = fixOrphan(orphan, options.dryRun);
+    if (result.fixed) actions.push(result.message);
+    else reviews.push(result.message);
+  }
 
   const pages = getAllPages();
-  const allLinks = new Set();
-  for (const p of pages) {
-    const content = fs.readFileSync(p, 'utf8');
-    for (const link of extractLinks(content)) {
-      allLinks.add(link);
+  for (const file of pages) {
+    const parsed = parseFrontmatter(readMarkdown(file));
+    if (!parsed.data || missingFrontmatterFields(parsed.data).length > 0) {
+      actions.push(fixFrontmatter({ file }, options.dryRun));
     }
+    actions.push(fixIndexEntry(file, options.dryRun));
   }
 
-  let fixed = 0;
-  let skipped = 0;
-  const orphansToFix = [];
-
-  for (const p of pages) {
-    const rel = path.relative(WIKI, p).replace(/\\/g, '/').replace(/\.md$/, '');
-    const name = path.basename(p, '.md');
-    const hasInbound = allLinks.has(name) || allLinks.has(rel);
-
-    if (!hasInbound && !name.startsWith('index') && !rel.includes('INDEX')) {
-      // 这是一个孤立页，尝试自动补录
-      const content = fs.readFileSync(p, 'utf8');
-      const fm = extractFrontmatter(content);
-      if (fm) {
-        const titleMatch = fm.match(/^title:\s*(.+)$/m);
-        const title = titleMatch ? titleMatch[1] : name;
-        const descMatch = content.match(/^#\s+(.+)$/m);
-        const description = descMatch ? descMatch[1].trim().slice(0, 40) + '...' : '';
-
-        // 确定分类
-        const catMatch = rel.match(/^(\d{2}-[^\/]+)/);
-        const category = catMatch ? catMatch[1] : 'other';
-
-        orphansToFix.push({ 
-          file: rel, 
-          category, 
-          title, 
-          description: title + ': ' + description 
-        });
-        fixed++;
-      } else {
-        skipped++;
-      }
-    }
+  for (const item of lintArchiveCandidates()) {
+    actions.push(archiveFact(item, options.dryRun));
   }
 
-  // 自动更新 index.md
-  if (orphansToFix.length > 0) {
-    let indexContent = fs.readFileSync(idxPath, 'utf8');
-    
-    // 按分类分组
-    const byCategory = {};
-    orphansToFix.forEach(o => {
-      if (!byCategory[o.category]) byCategory[o.category] = [];
-      byCategory[o.category].push(o);
-    });
-
-    // 为每个分类添加链接
-    for (const cat in byCategory) {
-      const catHeader = `## ${cat.replace(/-/g, ' ')}`;
-      const catIndex = indexContent.indexOf(catHeader);
-      
-      if (catIndex >= 0) {
-        // 找到分类，添加链接
-        const nextHeaderIndex = indexContent.indexOf('##', catIndex + catHeader.length);
-        let insertPoint = nextHeaderIndex;
-        if (insertPoint < 0) insertPoint = indexContent.length;
-        
-        const linksToAdd = byCategory[cat].map(o => 
-          `- [[wiki/${o.file}]] — ${o.description}\n`
-        ).join('');
-        
-        indexContent = indexContent.slice(0, insertPoint) + 
-          '\n' + linksToAdd + indexContent.slice(insertPoint);
-      } else {
-        // 分类不存在，新建
-        const newCatSection = `\n## ${cat.replace(/-/g, ' ')}\n\n`;
-        const linksToAdd = byCategory[cat].map(o => 
-          `- [[wiki/${o.file}]] — ${o.description}\n`
-        ).join('');
-        
-        indexContent += newCatSection + linksToAdd;
-      }
-    }
-
-    fs.writeFileSync(idxPath, indexContent, 'utf8');
-  }
-
-  return { fixed, skipped, orphans: orphansToFix };
+  return { actions, reviews };
 }
 
-// ===== v3.0 F3 新增：自动归档功能 =====
-function autoArchive() {
-  const now = new Date();
-  const cutoff30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const archiveDir = path.join(WIKI, '98-archive');
-  if (!fs.existsSync(archiveDir)) {
-    fs.mkdirSync(archiveDir, { recursive: true });
+function buildReport(autoFixResult) {
+  const today = new Date().toISOString().slice(0, 10);
+  const orphans = lintOrphans();
+  const archiveCandidates = lintArchiveCandidates();
+  const fmIssues = lintFrontmatter();
+  const indexHealth = lintIndexHealth();
+
+  const report = [];
+  report.push(`# Lint Report — ${today}`);
+  report.push('');
+  report.push('## 矛盾');
+  report.push('- 当前版本未实现自动矛盾判真；冲突仍需人工 review。');
+  report.push('');
+  report.push(`## 孤立页 (${orphans.length})`);
+  report.push(...(orphans.length ? orphans.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')}`) : ['- 无 ✅']));
+  report.push('');
+  report.push(`## 候选归档 (${archiveCandidates.length})`);
+  report.push(...(archiveCandidates.length ? archiveCandidates.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')} (trust: ${item.trust})`) : ['- 无 ✅']));
+  report.push('');
+  report.push('## INDEX 健康');
+  if (!indexHealth.exists) {
+    report.push('- index.md 不存在 ❌');
+  } else {
+    report.push(`- index.md: ${indexHealth.bytes} bytes`);
+    report.push(...(indexHealth.missing.length ? indexHealth.missing.map(item => `- 缺失: ${item}`) : ['- 链接存在性正常 ✅']));
   }
-
-  const archived = [];
-
-  for (const cat of ['04-facts']) {
-    const dir = path.join(WIKI, cat);
-    if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir)) {
-      if (!f.endsWith('.md')) continue;
-      const full = path.join(dir, f);
-      const content = fs.readFileSync(full, 'utf8');
-      const fm = extractFrontmatter(content);
-      if (!fm) continue;
-
-      const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
-      const retrievalMatch = fm.match(/^retrieval_count:\s*(\d+)/m);
-      const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
-      const retrievalCount = retrievalMatch ? parseInt(retrievalMatch[1]) : 0;
-
-      // 归档条件: last_updated > 30天 且 retrieval_count=0
-      if (updated < cutoff30 && retrievalCount === 0) {
-        const archiveName = `${now.toISOString().slice(0, 10)}-${f}`;
-        const archivePath = path.join(archiveDir, archiveName);
-        try {
-          fs.renameSync(full, archivePath);
-          archived.push({ from: path.relative(ROOT, full), to: path.relative(ROOT, archivePath) });
-        } catch (e) {
-          console.error(`归档失败: ${full} -> ${archivePath}`, e.message);
-        }
-      }
-    }
-  }
-
-  return archived;
+  report.push('');
+  report.push(`## Frontmatter 问题 (${fmIssues.length})`);
+  report.push(...(fmIssues.length ? fmIssues.map(item => `- ${path.relative(ROOT, item.file).replace(/\\/g, '/')}: ${item.issue}`) : ['- 无 ✅']));
+  report.push('');
+  report.push('## 自动修复记录');
+  report.push(...(autoFixResult && autoFixResult.actions.length ? autoFixResult.actions.map(item => `- ${item}`) : ['- 未执行']));
+  report.push('');
+  report.push('## 需要 YANG 决策');
+  report.push(...(autoFixResult && autoFixResult.reviews.length ? autoFixResult.reviews.map(item => `- ${item}`) : ['- 无 ✅']));
+  report.push('');
+  return report.join('\n') + '\n';
 }
-
-// ===== v3.0 F3 新增：自动删除功能 =====
-function autoDelete() {
-  const now = new Date();
-  const cutoff90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-  const archiveDir = path.join(WIKI, '98-archive');
-  const deleted = [];
-
-  if (!fs.existsSync(archiveDir)) return deleted;
-
-  for (const f of fs.readdirSync(archiveDir)) {
-    if (!f.endsWith('.md')) continue;
-    const full = path.join(archiveDir, f);
-    const content = fs.readFileSync(full, 'utf8');
-    const fm = extractFrontmatter(content);
-    if (!fm) continue;
-
-    const updatedMatch = fm.match(/^last_updated:\s*(.+)$/m);
-    const updated = updatedMatch ? new Date(updatedMatch[1]) : new Date(0);
-
-    // 删除条件: 归档 > 90 天
-    if (updated < cutoff90) {
-      try {
-        fs.unlinkSync(full);
-        deleted.push({ file: path.relative(ROOT, full), updated });
-      } catch (e) {
-        console.error(`删除失败: ${full}`, e.message);
-      }
-    }
-  }
-
-  return deleted;
-}
-
-// ===== main =====
-const _ARGS = process.argv.slice(2);
-const _AUTO_CLEAN = _ARGS.includes('--auto-clean');
-const _AUTO_FIX = _ARGS.includes('--auto-fix');
 
 function main() {
-  if (!fs.existsSync(TEMP)) fs.mkdirSync(TEMP, { recursive: true });
-  const today = new Date().toISOString().slice(0, 10);
-  const out = path.join(TEMP, `lint-${today}.md`);
-  
-  // 自动修复 (F5)
-  if (_AUTO_FIX) {
-    // 孤立页自动补录 INDEX
-    const orphanFix = autoFixOrphanPages();
-    if (orphanFix.fixed > 0) {
-      console.log(`自动补录孤立页: ${orphanFix.fixed} 个文件`);
-      orphanFix.orphans.forEach(o => console.log(`  ${o.file} → INDEX`));
-    }
-    if (orphanFix.skipped > 0) {
-      console.log(`跳过孤立页(无frontmatter): ${orphanFix.skipped} 个`);
-    }
-    
-    // 自动归档 (F3)
-    const archived = autoArchive();
-    if (archived.length > 0) {
-      console.log(`自动归档: ${archived.length} 个文件`);
-      archived.forEach(a => console.log(`  ${a.from} -> ${a.to}`));
-    }
-    
-    // 自动删除 (F3)
-    const deleted = autoDelete();
-    if (deleted.length > 0) {
-      console.log(`自动删除: ${deleted.length} 个文件`);
-      deleted.forEach(d => console.log(`  ${d.file} (更新: ${d.updated.toISOString().slice(0, 10)})`));
-    }
+  ensureBaseDirs();
+  const opts = parseArgs();
+  const autoFixResult = opts.fix ? autoFix(opts) : { actions: [], reviews: [] };
+  const report = buildReport(autoFixResult);
+  const out = path.join(TEMP, `lint-${new Date().toISOString().slice(0, 10)}.md`);
+  if (!opts.dryRun) {
+    writeMarkdown(out, report);
+    appendLog('lint', opts.fix ? 'lint --fix' : 'lint', false);
   }
-  
-  const report = lintAll();
-  fs.writeFileSync(out, report, 'utf8');
-  console.log('Lint report written to:', out);
-  if (_AUTO_CLEAN) console.log('(auto-clean 已启用: 低置信度候选已删, missed-recall >14天已关闭)');
-  if (_AUTO_FIX) console.log('(auto-fix 已启用: 孤立页补录INDEX + 候选归档 + >90天删除)');
-  console.log('\n' + report);
+  console.log(report);
+  if (opts.dryRun) console.log('(dry-run) no files changed');
 }
 
 main();
