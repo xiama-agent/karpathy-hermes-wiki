@@ -14,13 +14,14 @@
 - [[wiki/00-core/preferences.md]] — YANG 核心偏好（≤20 条硬规则）: # YANG 核心偏好
 - [[wiki/00-core/triggers.md]] — 自动触发规则（什么时候自动干什么）: # 自动触发规则
 
-## 0. 1 yang (5)
+## 0. 1 yang (6)
 
 - [[wiki/01-yang/budget.md]] — YANG 预算详情: # YANG 预算详情
 - [[wiki/01-yang/communication.md]] — YANG 沟通偏好: # YANG 沟通偏好
 - [[wiki/01-yang/desktop.md]] — 桌面与文件管理: # 桌面与文件管理
 - [[wiki/01-yang/profile.md]] — YANG 身份档案: # YANG 身份档案
 - [[wiki/01-yang/projects.md]] — YANG 项目清单: # YANG 项目清单
+- [[wiki/01-yang/session-log/session-2026-06-26-193850.md]] — 会话摘要：SOUL.md/AGENTS.md/lint.js 修改记录
 
 ## 0. 2 knowledge (33)
 
@@ -90,5 +91,5 @@
 
 ---
 
-**总计**: 63 个页面
+**总计**: 64 个页面
 **最后更新**: 2026-06-26

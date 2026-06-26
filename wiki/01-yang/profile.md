@@ -43,4 +43,5 @@ last_updated: 2026-06-26
 - [[desktop]] — 文件管理
 - [[projects]] — 项目清单
 - [[communication]] — 沟通偏好
+- [[01-yang/session-log/session-2026-06-26-193850]] — 会话摘要与维护记录
 - [[02-knowledge/self-media]] — 自媒体工作流（媒体龙虾分工）

@@ -93,6 +93,11 @@ SELECT COUNT(*) FROM facts WHERE tags LIKE '%rsi_ledger%'
 - **source**: rsi-log.js 自动记录
 
 
+## 相关系统页面
+
+- [[03-system/hermes-system-status-20260626]] — 记忆系统状态与健康检查报告
+- [[03-system/missed-recall-2026-06-26]] — 当日召回失败记录与知识缺口
+
 ## 🔧 自动处理规则（v3.1.4 修正版）
 
 **原 SOUL.md 规则 36 "RSI 自动追踪+晋升"** —— 已确认代码路径未实现，规则保留但**实际追踪**改为：

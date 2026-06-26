@@ -24,3 +24,4 @@ last_updated: 2026-06-26
 - [[cron-jobs]]
 - [[hermes-hooks]]
 - [[03-system/cron-jobs]] — 上级/相关页面
+- [[03-system/lint-report-2026-06-26]] — 当日 lint 报告与自动维护输入
