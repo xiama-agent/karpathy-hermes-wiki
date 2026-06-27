@@ -26,6 +26,7 @@
 - [framework-design-iron-rules-guide](wiki/02-knowledge/framework-design-iron-rules-guide.md)
 - [hermes-tool-independence](wiki/02-knowledge/hermes-tool-independence.md)
 - [image-gen](wiki/02-knowledge/image-gen.md)
+- [indie-hacking-cases](wiki/02-knowledge/indie-hacking-cases.md)
 - [lint-to-wiki-automation](wiki/02-knowledge/lint-to-wiki-automation.md)
 - [markitdown](wiki/02-knowledge/markitdown.md)
 - [mcp-plugins](wiki/02-knowledge/mcp-plugins.md)
