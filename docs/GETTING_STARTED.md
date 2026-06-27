@@ -8,7 +8,7 @@
 ## Step 1: Clone
 
 ```bash
-git clone https://github.com/3866654034-stack/karpathy-hermes-wiki.git
+git clone https://github.com/xiama-agent/karpathy-hermes-wiki.git
 ```
 
 Or download ZIP from the GitHub page.

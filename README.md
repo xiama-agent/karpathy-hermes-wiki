@@ -47,7 +47,7 @@ The system implements three memory layers:
 
 ```bash
 # Clone
-git clone https://github.com/3866654034-stack/karpathy-hermes-wiki.git
+git clone https://github.com/xiama-agent/karpathy-hermes-wiki.git
 
 # Initialize
 cd karpathy-hermes-wiki
