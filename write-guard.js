@@ -28,6 +28,41 @@ function parseArgs() {
   return opts;
 }
 
+/**
+ * 验证写入目的地是否合法
+ * 拦截 session-log、.backup、.legacy、非标准分类路径
+ */
+function validateDestination(filePath) {
+  const normalized = filePath.replace(/\\\\/g, '/');
+  
+  const blockedPatterns = [
+    { pattern: /session-log/i, reason: 'session-log 应放 wiki/98-archive/session-log/' },
+    { pattern: /\.backup/, reason: '备份由 Git 管理，不手动写 backup' },
+    { pattern: /\.legacy/, reason: 'legacy 文件只读不写入' },
+  ];
+  
+  for (const { pattern, reason } of blockedPatterns) {
+    if (pattern.test(normalized)) {
+      return { allowed: false, reason };
+    }
+  }
+  
+  // 在 wiki/ 下但不在标准分类 → 警告
+  if (normalized.includes('/wiki/')) {
+    const allowedPrefixes = [
+      '00-core/', '01-yang/', '02-knowledge/', '03-system/',
+      '04-facts/', '98-archive/', '99-temp/'
+    ];
+    const inWiki = normalized.split('/wiki/')[1] || '';
+    const isStandard = allowedPrefixes.some(p => inWiki.startsWith(p));
+    if (!isStandard) {
+      return { allowed: true, warn: `非标准路径: ${inWiki}，建议使用 00-core~99-temp 分类` };
+    }
+  }
+  
+  return { allowed: true };
+}
+
 function getFileHash(filePath) {
   if (!fs.existsSync(filePath)) {
     return 'null';
@@ -233,6 +268,16 @@ function main() {
   }
   
   const filePath = path.isAbsolute(opts.file) ? opts.file : path.join(ROOT, opts.file);
+  
+  // 目的地验证（无论 check/write 模式都跑）
+  const destResult = validateDestination(filePath);
+  if (!destResult.allowed) {
+    console.log('🚫 路径被拦截:', destResult.reason);
+    process.exit(1);
+  }
+  if (destResult.warn) {
+    console.log('⚠️ 路径警告:', destResult.warn);
+  }
   
   if (opts.mode === 'check') {
     const conflictResult = detectConflict(filePath, '');
