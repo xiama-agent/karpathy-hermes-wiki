@@ -12,6 +12,11 @@
 7. 工具失败记 RSI → node rsi-log.js
 8. 写入后更新 INDEX → 追加链接
 9. 对话结束写日志 → node session-summary.js
+10. **每次对话结束前自检** → 快速跑一遍：
+    - 这个会话有没有往 Wiki 写东西？写了就确认 INDEX 已更新
+    - 有没有发现 Wiki 缺页面？缺了就建
+    - 有没有工具反复失败？记 RSI
+11. **每周至少一次全面自检** → `node lint.js` + `node forget-cycle.js --dry-run`
 
 **优先级**: SOUL.md > RUNTIME.md > IRON_RULES.md > AGENTS.md > Wiki
-**核心**: 先验证后承诺，不确定就问。Wiki 有答案先用 Wiki，Wiki 没有再用自己知识。
+**核心**: 先验证后承诺，不确定就问。Wiki 有答案先用 Wiki，Wiki 没有再用自己知识。系统要自己维护，不等 YANG 发现才修。

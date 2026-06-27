@@ -1,5 +1,7 @@
 // topic-validation.js — topic-detection 实体验证
-// 用法：node topic-validation.js --wiki-ids "paths.md, tools-overview.md" --response "response content"
+// 用法：
+//   node topic-validation.js --wiki-ids "paths.md, tools-overview.md" --response "response content"
+//   echo '{"response":"...","wiki_ids":["..."]}' | node topic-validation.js --auto-verify
 // 功能：验证回复内容是否真的引用了 wiki 页面
 
 const fs = require('fs');
@@ -10,7 +12,7 @@ const WIKI = path.join(ROOT, 'wiki');
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const opts = { wikiIds: '', response: '', checkMode: 'content' };
+  const opts = { wikiIds: '', response: '', checkMode: 'content', autoVerify: false };
   
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--wiki-ids') {
@@ -19,10 +21,88 @@ function parseArgs() {
       opts.response = args[++i] || '';
     } else if (args[i] === '--check-mode') {
       opts.checkMode = args[++i] || 'content';
+    } else if (args[i] === '--auto-verify') {
+      opts.autoVerify = true;
     }
   }
   
   return opts;
+}
+
+// --- 扩展（2026-06-27 TASK_026）：--auto-verify 模式 ---
+// 判断 wiki_id 是否在 response 中被实际引用（忽略大小写和 .md 后缀）
+function isWikiIdReferenced(wikiId, response) {
+  const cleanId = String(wikiId).toLowerCase().replace(/\.md$/, '').trim();
+  if (!cleanId) return false;
+  const responseLower = String(response).toLowerCase();
+  
+  // 匹配多种引用形式
+  const candidates = [
+    cleanId,                      // paths
+    cleanId + '.md',              // paths.md
+    cleanId.replace(/-/g, '_'),   // paths_conventions
+    cleanId.replace(/_/g, '-')    // paths-conventions
+  ];
+  
+  for (const candidate of candidates) {
+    if (candidate && responseLower.includes(candidate)) return true;
+  }
+  return false;
+}
+
+// 同步读 stdin（用于 echo | node topic-validation.js --auto-verify 场景）
+function readStdinSync() {
+  try {
+    return fs.readFileSync(0, 'utf8');
+  } catch (e) {
+    throw new Error(`stdin 读取失败: ${e.message}`);
+  }
+}
+
+function runAutoVerify() {
+  let input;
+  try {
+    input = readStdinSync();
+  } catch (e) {
+    const err = { ok: false, error: e.message };
+    console.log(JSON.stringify(err, null, 2));
+    process.exit(1);
+  }
+  
+  let data;
+  try {
+    data = JSON.parse(input);
+  } catch (e) {
+    const err = { ok: false, error: `JSON 解析失败: ${e.message}` };
+    console.log(JSON.stringify(err, null, 2));
+    process.exit(1);
+  }
+  
+  const response = data.response;
+  const wikiIds = Array.isArray(data.wiki_ids) ? data.wiki_ids : [];
+  
+  if (typeof response !== 'string') {
+    const err = { ok: false, error: 'response 字段必须是字符串' };
+    console.log(JSON.stringify(err, null, 2));
+    process.exit(1);
+  }
+  
+  const details = wikiIds.map(id => ({
+    wiki_id: id,
+    verified: isWikiIdReferenced(id, response)
+  }));
+  const verified = details.filter(d => d.verified).length;
+  const faked = details.length - verified;
+  
+  const result = {
+    ok: faked === 0,
+    claimed: wikiIds.length,
+    verified,
+    faked,
+    details
+  };
+  console.log(JSON.stringify(result, null, 2));
+  process.exit(result.ok ? 0 : 1);
 }
 
 function findWikiFile(wikiId) {
@@ -148,6 +228,11 @@ function validateTopicReferences(wikiIds, response, checkMode = 'content') {
 function main() {
   const opts = parseArgs();
   
+  // --auto-verify 模式：从 stdin 读 JSON 验证
+  if (opts.autoVerify) {
+    return runAutoVerify();
+  }
+  
   if (opts.wikiIds === '') {
     console.log('用法:');
     console.log('  node topic-validation.js --wiki-ids "paths.md, tools-overview.md" --response "回复内容"');
@@ -158,6 +243,9 @@ function main() {
     console.log('检查模式:');
     console.log('  content (默认) - 检查回复内容是否真的引用了 wiki');
     console.log('  existence - 只检查 wiki 页面是否存在');
+    console.log('');
+    console.log('Auto-verify 模式 (TASK_026):');
+    console.log('  echo \'{"response":"...","wiki_ids":["..."]}\' | node topic-validation.js --auto-verify');
     process.exit(1);
   }
   
