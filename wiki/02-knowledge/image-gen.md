@@ -28,3 +28,7 @@ last_updated: 2026-06-26
 `$HERMES_HOME/cache/images/`
 
 
+
+## 相关链接
+- [[02-knowledge/tools-overview|tools-overview]] — 工具总览
+- [[02-knowledge/self-media|self-media]] — 自媒体工作流

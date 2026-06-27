@@ -61,3 +61,7 @@ last_updated: 2026-06-26
 - 召回失败 (>14天): 0 (0 已自动关闭)
 - INDEX 1190 bytes
 - 生命周期: 0 候选归档, 0 候选删除
+
+## 相关链接
+- [[03-system/hermes-system-status-20260626|hermes-system-status-20260626]] — 系统状态报告
+- [[03-system/backup|backup]] — 备份体系

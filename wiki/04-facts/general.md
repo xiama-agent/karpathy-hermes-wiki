@@ -41,3 +41,8 @@ last_updated: 2026-06-27
 - 预算 → `01-yang/budget.md`
 - 偏好/规则 → `00-core/preferences.md`
 - 架构历史 → `03-system/architecture-audit-*.md`
+
+## 相关链接
+- [[04-facts/compliance-gap-analysis]] — 合规性差距分析
+- [[04-facts/fact-error-handling]] — 事实错误处理流程
+- [[04-facts/system-performance-gap]] — 系统性能差距分析

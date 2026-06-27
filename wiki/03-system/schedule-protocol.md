@@ -34,3 +34,7 @@ pending → claimed → in_progress → done / failed / partial / rerouted
 - 1 年后删除
 
 
+
+## 相关链接
+- [[03-system/cron-jobs|cron-jobs]] — 定时任务清单
+- [[02-knowledge/ai-schedule|ai-schedule]] — AI 调度系统

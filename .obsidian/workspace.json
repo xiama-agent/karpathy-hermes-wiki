@@ -1,20 +1,24 @@
 {
   "main": {
-    "id": "481cfe523f604940",
+    "id": "cc0c8d7168ee1d6a",
     "type": "split",
     "children": [
       {
-        "id": "2b403f7947d6962d",
+        "id": "6b110813bc2cc44f",
         "type": "tabs",
         "children": [
           {
-            "id": "942fd2b7715972dd",
+            "id": "2833ba87923cc0f5",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "wiki/99-temp/candidates-20260627-122819.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "candidates-20260627-122819"
             }
           }
         ]
@@ -23,15 +27,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "015a99dd956baec4",
+    "id": "4761f69c47b956dd",
     "type": "split",
     "children": [
       {
-        "id": "cde575c9a0fe415a",
+        "id": "3bbe67992a3e4e0b",
         "type": "tabs",
         "children": [
           {
-            "id": "0c2031afe7cd798f",
+            "id": "012c63e17cfc7bc6",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -44,7 +48,7 @@
             }
           },
           {
-            "id": "a98d0ad7ff1bbb81",
+            "id": "1e83b0ac4411aae5",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -61,7 +65,7 @@
             }
           },
           {
-            "id": "d81eaa7630848537",
+            "id": "32394a761fb147dc",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -77,20 +81,19 @@
     "width": 300
   },
   "right": {
-    "id": "66eb42e116b1bdd4",
+    "id": "4d170a83dcdf6e8b",
     "type": "split",
     "children": [
       {
-        "id": "749845cbd6b9cce6",
+        "id": "daad82fc38e7dedd",
         "type": "tabs",
         "children": [
           {
-            "id": "31b82c4676ab8ad6",
+            "id": "7a79d0780449a7c2",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "architecture-audit-v3.1.5.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -100,25 +103,24 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "architecture-audit-v3.1.5 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
-            "id": "ffa1be3ca84b0a55",
+            "id": "3c038141cc9ddcf6",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "architecture-audit-v3.1.5.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "architecture-audit-v3.1.5 的出链列表"
+              "title": "出链"
             }
           },
           {
-            "id": "80bc3bff8bd2e66c",
+            "id": "cad9b564b1f44684",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -133,7 +135,7 @@
             }
           },
           {
-            "id": "0fc0576fa37f21ce",
+            "id": "186470c9bcf96d54",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -147,18 +149,17 @@
             }
           },
           {
-            "id": "3dd8df0d1b656352",
+            "id": "b104846bdca0c462",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "architecture-audit-v3.1.5.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "architecture-audit-v3.1.5 的大纲"
+              "title": "大纲"
             }
           }
         ]
@@ -179,8 +180,17 @@
       "bases:新建数据库": false
     }
   },
-  "active": "942fd2b7715972dd",
+  "active": "012c63e17cfc7bc6",
   "lastOpenFiles": [
-    "architecture-audit-v2.md"
+    "wiki/01-yang/session-log/session-2026-06-27-212626.md",
+    "wiki/01-yang/session-log/session-2026-06-27-212615.md",
+    "wiki/01-yang/session-log/session-2026-06-27-212421.md",
+    "wiki/99-temp/candidates-20260627-132421.md",
+    "wiki/01-yang/session-log/session-2026-06-27-212314.md",
+    "README.md",
+    "wiki/01-yang/session-log/session-2026-06-27-204646.md",
+    "index.md",
+    "wiki/01-yang/session-log/session-2026-06-27-212038.md",
+    "wiki/99-temp/candidates-20260627-132038.md"
   ]
 }

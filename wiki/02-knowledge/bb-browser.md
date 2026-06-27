@@ -18,3 +18,8 @@ last_updated: 2026-06-26
 - **触发**：需要登录→自动用bb-browser而非agent-browser
 
 
+
+## 相关链接
+- [[02-knowledge/paths|paths]] — 路径速查
+- [[02-knowledge/tools-overview|tools-overview]] — 工具总览
+- [[02-knowledge/vision-ocr|vision-ocr]] — 视觉/OCR

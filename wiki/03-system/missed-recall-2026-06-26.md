@@ -56,3 +56,7 @@ last_updated: 2026-06-26
 - `16:04:23` query="xyznonexistent_query_for_test_987654"
 - `16:04:38` query="another_missing_query_for_test_555_xyz"
 - `16:21:05` query="test query"
+
+## 相关链接
+- [[03-system/hermes-system-status-20260626|hermes-system-status-20260626]] — 系统状态报告
+- [[00-core/triggers|triggers]] — 自动触发规则

@@ -110,3 +110,4 @@ last_updated: 2026-06-27
 - [[triggers]] — 自动触发规则
 - `D:\ai_schedule\hermes-brain\IRON_RULES.md` — 运行时 7 条铁律（本页的精简版）
 - `D:\ai_schedule\hermes-brain\RUNTIME.md` — 运行时 11 条指令
+- [[00-core/triggers]] — 上级/相关页面

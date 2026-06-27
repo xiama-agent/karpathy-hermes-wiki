@@ -16,3 +16,7 @@ last_updated: 2026-06-26
 - 用途：复杂编码任务，调DeepSeek LLM
 
 
+
+## 相关链接
+- [[02-knowledge/tools-overview|tools-overview]] — 工具总览
+- [[02-knowledge/minimax-m3|minimax-m3]] — MiniMax M3
