@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "wiki/99-temp/candidates-20260627-122819.md",
+                "file": "schema/index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "candidates-20260627-122819"
+              "title": "index"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200
   },
   "right": {
     "id": "4d170a83dcdf6e8b",
@@ -180,8 +180,18 @@
       "bases:新建数据库": false
     }
   },
-  "active": "012c63e17cfc7bc6",
+  "active": "2833ba87923cc0f5",
   "lastOpenFiles": [
+    "index.md",
+    "AGENTS.md",
+    "IRON_RULES.md",
+    "wiki/01-yang/session-log/session-2026-06-27-223010.md",
+    "wiki/01-yang/session-log/session-2026-06-27-222310.md",
+    "wiki/01-yang/session-log/session-2026-06-27-221243.md",
+    "wiki/99-temp/candidates-20260627-141243.md",
+    "wiki/00-core/core-iron-laws.md",
+    "wiki/99-temp/candidates-20260627-122819.md",
+    "wiki/01-yang/session-log/session-2026-06-27-212959.md",
     "wiki/01-yang/session-log/session-2026-06-27-212626.md",
     "wiki/01-yang/session-log/session-2026-06-27-212615.md",
     "wiki/01-yang/session-log/session-2026-06-27-212421.md",
@@ -189,7 +199,6 @@
     "wiki/01-yang/session-log/session-2026-06-27-212314.md",
     "README.md",
     "wiki/01-yang/session-log/session-2026-06-27-204646.md",
-    "index.md",
     "wiki/01-yang/session-log/session-2026-06-27-212038.md",
     "wiki/99-temp/candidates-20260627-132038.md"
   ]
