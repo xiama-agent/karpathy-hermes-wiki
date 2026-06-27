@@ -1,124 +1,86 @@
-# 🦞 龙虾 · AI 智能体记忆系统
+# Karpathy-Hermes-Wiki
 
-**一个完整个体级 AI 智能体的"大脑"——基于 Karpathy LLM Wiki 范式。**
+**A production-ready AI Agent memory system based on the Karpathy LLM Wiki paradigm.**
 
-> 灵感来源于 Andrej Karpathy 提出的 "LLM Wiki" 理念——让 AI 拥有一个可读、可写、可版本控制的长期记忆库。
-> 这不是一套提示词模板，不是一条 API 包装，而是一个**完整可运行的 AI 智能体记忆架构**。
-
----
-
-## 🔥 为什么叫"龙虾大脑"？
-
-| 你需要解决的问题 | 龙虾的解法 |
-|:---------------|:----------|
-| AI 每次对话都忘记你是谁 | **宪法层**（SOUL.md）定义不可违背的身份和规则 |
-| AI 靠训练数据回答，没有你的私有知识 | **Wiki 知识库**存你的项目、路径、偏好——AI 每轮先读 Wiki 再回答 |
-| AI 回答经常胡编 | **Topic-Gate 机制**：每句回答必须声明引用了哪个 Wiki 页面 |
-| 知识多了就乱 | **23 个自动化脚本**自动做：摄入 → 检查 → 信任分评估 → 遗忘清理 |
+A complete, version-controlled knowledge architecture for long-term AI memory — constitution, operations manual, and knowledge base, integrated into a single maintainable system.
 
 ---
 
-## 它能做什么？
-
-| 场景 | 说明 |
-|:----|:-----|
-| ✅ **你的专属 AI 管家** | 一个知道你偏好、项目、路径的 AI——不每次推倒重来 |
-| ✅ **多 AI 调度** | 龙虾（管家）+ Mavis（执行手）分工协作 |
-| ✅ **知识自动运维** | 写 → 查 → 检查 → 遗忘，全自动闭环 |
-| ✅ **开源生态兼容** | 运行在 Hermes Agent 上，可安装 94,000+ 社区技能 |
-| ✅ **出口即内容** | 搭建过程本身就是 AI 赛道的高价值内容素材 |
-
----
-
-## 🚀 快速开始
-
-```bash
-# 1. 克隆
-git clone https://github.com/3866654034-stack/hermes-brain.git
-
-# 2. 首次初始化
-cd hermes-brain
-node lint.js          # 全量检查
-node update-trust.js  # 初始化信任分
-
-# 3. 配好 SOUL.md + AGENTS.md 路径，启动你的 AI
-```
-
-> 📖 **完整搭建教程（从零开始，10分钟）** → [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
-
----
-
-## 项目结构
+## Architecture
 
 ```
 hermes-brain/
-├── SOUL.md               ← 🏛️ 宪法：AI 的身份定义 + 9 条硬规则
-├── AGENTS.md             ← 📖 操作手册：怎么读、写、维护 Wiki
-├── IRON_RULES.md         ← ⚡ 7 条运行时铁律
-├── RUNTIME.md            ← ⚙️ 11 条运行时指令
-├── VERSION.md            ← 📌 版本声明
-├── index.md              ← 🧭 自动注入目录（每轮对话读这个）
+├── SOUL.md               ← Constitution: agent identity, hard rules, behavior constraints
+├── AGENTS.md             ← Operations manual: read/write/maintain Wiki protocol
+├── IRON_RULES.md         ← 7 runtime invariants
+├── RUNTIME.md            ← 11 runtime directives
+├── index.md              ← Auto-injected directory (loaded every session)
 │
-├── wiki/                 ← 🧠 知识本体（1.1 MB）
-│   ├── 00-core/          ← 宪法层：铁律、身份、偏好、触发规则
-│   ├── 01-yang/          ← 用户层：档案、项目、预算
-│   ├── 02-knowledge/     ← 知识层：33 页领域知识
-│   ├── 03-system/        ← 系统层：架构审计、定时任务、运维
-│   ├── 04-facts/         ← 事实层：精炼事实索引
-│   └── 98-archive/       ← 归档
+├── wiki/                 ← Knowledge base (1.1 MB)
+│   ├── 00-core/          ← Constitutional layer: iron laws, identity, preferences, triggers
+│   ├── 01-yang/          ← User layer: profile, projects, budget, environment
+│   ├── 02-knowledge/     ← Knowledge layer: 33 domain-specific pages
+│   ├── 03-system/        ← System layer: architecture audits, cron jobs, operations
+│   ├── 04-facts/         ← Fact layer: curated fact index
+│   └── 98-archive/       ← Archive
 │
-├── schema/               ← 约束层：信任分规范
-├── raw/                  ← 原始材料
-├── log/                  ← 运行日志
-├── tools/                ← 辅助脚本
+├── schema/               ← Constraint layer: trust score standards
+├── raw/                  ← Raw source materials
+├── log/                  ← Operation logs
 │
-├── ingest.js             ← 材料摄入
-├── recall.js             ← 语义召回
-├── lint.js               ← 全量检查
-├── forget-cycle.js       ← 遗忘周期
-└── ...（共 23 个运维脚本）
+├── ingest.js             ← Material ingestion pipeline
+├── recall.js             ← Semantic recall
+├── lint.js               ← Full system check
+├── forget-cycle.js       ← Forgetting cycle
+└── ... (23 operational scripts)
 ```
+
+The system implements three memory layers:
+
+1. **Raw Layer** — Unprocessed inputs (conversation transcripts, external sources, skill files)
+2. **Wiki Layer** — Curated, version-controlled knowledge organized by category
+3. **Schema Layer** — Structural constraints (trust scores, frontmatter standards, naming conventions)
 
 ---
 
-## 🏗️ 核心架构：Karpathy 三层记忆
+## Quick Start
 
+```bash
+# Clone
+git clone https://github.com/3866654034-stack/karpathy-hermes-wiki.git
+
+# Initialize
+cd karpathy-hermes-wiki
+node lint.js              # Full health check
+node update-trust.js       # Initialize trust scores
+
+# Configure SOUL.md and AGENTS.md paths for your AI agent
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Raw Layer（原始材料层）                        │
-│    架构审计报告 · 技能文件 · 对话记录 · 外部知识源                │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │ ingest.js（自动摄入）
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│               Wiki Layer（可维护知识层）                          │
-│  ┌──────────┐ ┌──────────┐ ┌────────────┐ ┌──────────┐          │
-│  │ 00-core  │ │ 01-yang  │ │02-knowledge│ │03-system │          │
-│  │  宪法层   │ │  用户层  │ │  知识层    │ │  系统层   │          │
-│  └──────────┘ └──────────┘ └────────────┘ └──────────┘          │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │ lint.js · forget-cycle.js（维护循环）
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Schema Layer（结构化约束层）                         │
-│    信任分标准 · frontmatter 规范 · 标签约束 · 命名规则            │
-└─────────────────────────────────────────────────────────────────┘
-```
+
+> **Full setup guide (10 minutes)** → [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
 
 ---
 
-## 📜 许可证
+## Key Features
 
-本项目采用 [AGPL v3](LICENSE) 许可证。个人使用免费，商业使用请联系作者。
+| Feature | Description |
+|:--------|:------------|
+| **Constitutional memory** | SOUL.md defines immutable identity rules and behavior constraints |
+| **Topic-gated responses** | Every response declares which Wiki pages were referenced |
+| **Trust scoring** | Each page has a frontmatter `trust` field determining answer confidence |
+| **Self-maintaining** | 23 automated scripts for ingestion, linting, backup, RSI tracking |
+| **Git versioning** | Every modification is committed — full rollback capability |
+| **Multi-agent protocol** | Dispatcher + executor architecture for agent collaboration |
 
 ---
 
-## 🦞 关于作者
+## License
 
-龙虾（Lobster）是 **YANG** 的 AI 管家，这个仓库是它的"大脑"。
+[AGPL v3](LICENSE) — Free for personal use. Contact the author for commercial use.
 
-- 基于 **Hermes Agent** + **Karpathy LLM Wiki 范式**
-- 运行在 Windows 10 桌面
-- 使用 DeepSeek V4 Flash + MiniMax M3 双模型
+---
 
-> 💡 **想给自己的 AI 装上大脑？** 看 [搭建教程](docs/GETTING_STARTED.md)，10 分钟搞定。
+## References
+
+- Andrej Karpathy's LLM Wiki concept
+- Hermes Agent by Nous Research
