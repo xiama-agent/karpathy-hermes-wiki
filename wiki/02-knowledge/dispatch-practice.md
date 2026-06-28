@@ -45,10 +45,16 @@ last_updated: 2026-06-28
           → MiMo 看图验收
 ```
 
-### dispatch-prep.py 脚本
-自动提取设计文档指定行号的原文，拼接成框架后送 Reasonix 拆解。
+### 已验证的手工操作（替代 dispatch-prep.py）
 
-## 各 Agent 的派单模式
+dispatch-prep.py 已删除（docx 行号不准 + subprocess 权限问题）。使用已验证的手工流程：
+
+1. `read_file` 读取设计文档相关段落
+2. 复制原文 → 写入 `.txt` 文件
+3. `reasonix run @file.txt`（走终端，不走 subprocess）
+4. capture 输出 → 整理 → 作为派单描述
+
+### 各 Agent 的派单模式
 
 | Agent | 派单方式 | 适用场景 |
 |-------|---------|---------|
@@ -58,9 +64,14 @@ last_updated: 2026-06-28
 
 ## Claude Code 的 -p 模式限制
 `-p` 是非交互模式，无法通过文件写入权限审批。正确用法：
-1. `claude -p "生成代码"` → capture 输出文本
-2. 检查代码质量
-3. `write_file` 写入文件
+1. `claude -p "生成代码" --bare > claude-output.txt` → capture 输出到文件
+2. 提取 HTML 代码块（一行命令，不用写脚本）：
+   ```bash
+   python -c "import re;open('index.html','w',encoding='utf-8').write(re.search(r'```html\n(.*?)```',open('claude-output.txt',encoding='utf-8').read(),re.DOTALL).group(1).strip())"
+   ```
+3. **全局验收**（不只检查自己要的那部分）：`grep -c "step\|关键文案" index.html`
+4. **检查文件变化总量**：对比写入前后行数/大小，确认没有意外内容
+5. 清理临时文件：`rm claude-output.txt`
 
 ## 相关链接
 - [[02-knowledge/agent-routing]] — 路由规则
