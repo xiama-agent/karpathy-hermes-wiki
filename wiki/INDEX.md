@@ -44,6 +44,7 @@ last_updated: 2026-06-28
 
 | 页面 | 一句话 |
 |------|--------|
+|| `02-knowledge/dispatch-practice.md` | 派单实践与两层失真问题解决方法 |
 || `02-knowledge/agent-routing.md` | 智能体路由规则与Claude区分 |
 || `02-knowledge/ai-schedule.md` | AI 调度系统和多智能体协议 |
 | `02-knowledge/aliyun.md` | 阿里云相关配置 |
