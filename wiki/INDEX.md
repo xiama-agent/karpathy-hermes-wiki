@@ -20,7 +20,8 @@ last_updated: 2026-06-28
 
 | 页面 | 一句话 |
 |------|--------|
-| `00-core/triggers.md` | 自动触发规则全集（5+工具调用、改代码、写wiki、工具失败等） |
+|| `00-core/triggers.md` | 自动触发规则全集 |
+|| `00-core/zhigen-methodology.md` | 治本方法论（找根因+解决根因，YANG定义） |
 
 ---
 
