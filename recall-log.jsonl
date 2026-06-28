@@ -16,3 +16,4 @@
 {"ts":"2026-06-28T05:44:58.396Z","status":"miss","terms":"无","wiki_ids":"无"}
 {"ts":"2026-06-28T06:20:47.992Z","status":"miss","terms":"Claude Code 安装 版本","wiki_ids":""}
 {"ts":"2026-06-28T06:48:06.304Z","status":"miss","terms":"Mavis MiniMax M3 模型接入","wiki_ids":""}
+{"ts":"2026-06-28T07:54:04.101Z","status":"hit","terms":"记忆系统缺陷, known-defects, memory system flaws","wiki_ids":"known-defects.md, karpathy-wiki-operations"}
