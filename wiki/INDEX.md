@@ -54,8 +54,9 @@ last_updated: 2026-06-28
 | `02-knowledge/paths.md` | 路径映射（强制引用） |
 | `02-knowledge/paths-conventions.md` | 路径命名约定 |
 | `02-knowledge/software-dev-closed-loop.md` | 软件开发闭环方法论 |
-| `02-knowledge/tools-overview.md` | 工具总览 |
-| `02-knowledge/writing-plans.md` | 写作计划方法 |
+|| `02-knowledge/tools-overview.md` | 工具总览 |
+|| `02-knowledge/vision-ocr.md` | 视觉与OCR能力（MiMo看图、OCR文字提取） |
+|| `02-knowledge/writing-plans.md` | 写作计划方法 |
 
 ---
 
