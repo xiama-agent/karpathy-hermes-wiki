@@ -29,3 +29,7 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[03-system/disk-cleanup]] — disk-cleanup 插件
+- [[02-knowledge/tools-overview]] — 工具总览
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/tools-overview]] — 工具总览
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南

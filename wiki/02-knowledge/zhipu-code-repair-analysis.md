@@ -72,3 +72,8 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/tools-overview]] — 上级/相关页面
+- [[02-knowledge/zhipu-api-key-configuration]] — 智谱 AI 配置
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/zhipu-api-key-configuration]] — 智谱 API 配置
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/model-capabilities-comparison]] — AI 模型能力对比

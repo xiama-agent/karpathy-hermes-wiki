@@ -44,3 +44,6 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/paths]] — 上级/相关页面
+- [[02-knowledge/model-capabilities-comparison]] — AI 模型能力对比
+- [[02-knowledge/zhipu-code-repair-analysis]] — 智谱代码修复分析
+- [[02-knowledge/model-json-structure]] — model.json 配置结构说明

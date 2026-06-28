@@ -21,3 +21,5 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/paths]] — 上级/相关页面
+- [[02-knowledge/persistent-memory-tool-selection]] — 持久化记忆与工具选择指南
+- [[02-knowledge/ai-schedule]] — AI 调度系统

@@ -80,3 +80,4 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/tools-overview]] — 上级/相关页面
+- [[02-knowledge/hermes-tool-independence]] — Hermes 工具独立性架构

@@ -21,5 +21,7 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[03-system/auto-tasks|auto-tasks]] — 自动任务
+- [[02-knowledge/apk-build]] — APK 打包流程
+- [[02-knowledge/tools-overview]] — 工具总览
 - [[03-system/cron-jobs|cron-jobs]] — 定时任务清单
 - [[01-yang/desktop|desktop]] — 桌面环境

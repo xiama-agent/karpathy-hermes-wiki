@@ -38,3 +38,7 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[01-yang/profile]] — 上级/相关页面
+- [[02-knowledge/image-gen]] — 文生图能力
+- [[02-knowledge/vision-ocr]] — 视觉与 OCR 能力
+- [[02-knowledge/tools-overview]] — 工具总览
+- [[02-knowledge/indie-hacking-cases]] — AI 独立开发案例

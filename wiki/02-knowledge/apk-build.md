@@ -38,4 +38,6 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[projects]] — 项目清单（英语题库App）
-- [[02-knowledge/tools-overview|tools-overview]] — 工具总览
+- [[02-knowledge/night-lock]] — 夜间锁屏系统
+- [[02-knowledge/npm-global]] — npm 全局工具清单
+- [[02-knowledge/tools-overview]] — 工具总览

@@ -1,8 +1,10 @@
 ---
+id: HERMES-software-dev-closed-loop
 title: 软件开发闭环方法论 - AI带零基础用户从0到1
-source: ZCodeProject/三份文档融合
-tags: [方法论, 软件开发, 产品设计, AI协作, 闭环]
+type: knowledge
+tags: ["方法论", "软件开发", "产品设计", "AI协作", "闭环"]
 trust: high
+source: ZCodeProject/三份文档融合
 last_updated: 2026-06-28
 ---
 
@@ -173,3 +175,13 @@ last_updated: 2026-06-28
 - 不自创冷门组合
 
 典型推荐：纯前端（HTML/CSS/JS 单页）→ Vite + React/Vue → 轻量后端（Python Flask/FastAPI）→ 部署（Vercel/Fly.io）
+
+---
+
+## 相关链接
+
+- [[02-knowledge/boundary-analysis-checklist|boundary-analysis-checklist]] — 边界分析检查清单
+- [[02-knowledge/framework-design-iron-rules-guide|framework-design-iron-rules-guide]] — 框架设计与铁律创建指南
+- [[02-knowledge/indie-hacking-cases|indie-hacking-cases]] — AI 独立开发案例与变现策略
+- [[02-knowledge/tools-overview|tools-overview]] — 工具总览
+- [[02-knowledge/ai-schedule|ai-schedule]] — AI 调度系统

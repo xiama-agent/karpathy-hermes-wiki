@@ -40,3 +40,7 @@ OCR脚本（D:\Tools\HermesScripts\ocr.py）、PaddleOCR、ffmpeg（D:\Tools\ffm
 - [[02-knowledge/model-capabilities-comparison]] — AI 模型能力对比与使用场景
 - [[02-knowledge/zhipu-code-repair-analysis]] — 智谱 AI 代码修复能力评估
 - [[02-knowledge/system-integration-evaluation]] — 系统集成评估标准
+- [[02-knowledge/apk-build]] — APK 打包流程
+- [[02-knowledge/bb-browser]] — bb-browser 浏览器工具
+- [[02-knowledge/self-media]] — 自媒体工作流
+- [[02-knowledge/software-dev-closed-loop]] — 软件开发闭环方法论

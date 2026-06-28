@@ -45,6 +45,7 @@ npm list -g --depth=0
 
 ## 相关链接
 - [[tools-overview]] — 工具总览
+- [[02-knowledge/apk-build]] — APK 打包流程
 - [[paths]] — 路径速查
 - [[bb-browser]] — bb-browser 详细文档
 - [[reasonix]] — Reasonix 详细文档

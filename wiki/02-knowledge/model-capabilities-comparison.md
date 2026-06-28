@@ -30,3 +30,7 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/tools-overview]] — 上级/相关页面
+- [[02-knowledge/model-json-structure]] — model.json 配置结构说明
+- [[02-knowledge/minimax-m3]] — MiniMax M3 模型
+- [[02-knowledge/reasonix]] — Reasonix 桌面客户端
+- [[02-knowledge/zhipu-api-key-configuration]] — 智谱 AI 配置

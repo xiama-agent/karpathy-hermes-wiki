@@ -4,7 +4,7 @@ title: AI独立开发案例与变现策略
 type: reference
 tags: [indie-hacking, monetization, ai-product, case-study]
 trust: 0.9
-use_cases: ["怎么做AI产品赚钱", "独立开发案例", "定价策略", "web coding变现", "Offer Max分析", "AI插件商业模式", "BYOK模式", "怎么从0到1做AI产品", "信息差赚钱"]
+use_cases: ["怎么做AI产品赚钱", "独立开发案例", "定价策略", "web coding变现", "Offer Max分析", "AI插件商业模式", "BYOK模式", "怎么从0到1做AI产品", "信息差赚钱", "软件开发", "开发"]
 source: 2026-06-27 抖音博主内容分析
 last_updated: 2026-06-27
 ---
@@ -76,3 +76,4 @@ last_updated: 2026-06-27
 - [[02-knowledge/self-media|self-media]] — 自媒体工作流
 - [[02-knowledge/tools-overview|tools-overview]] — 工具总览
 - [[01-yang/projects|projects]] — 项目清单
+- [[02-knowledge/software-dev-closed-loop|software-dev-closed-loop]] — 软件开发闭环方法论

@@ -67,3 +67,11 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/tools-overview]] — 上级/相关页面
+- [[02-knowledge/mcp-plugins]] — MCP 插件管理
+- [[02-knowledge/zhipu-api-key-configuration]] — 智谱 AI 配置
+- [[02-knowledge/model-capabilities-comparison]] — AI 模型能力对比
+- [[02-knowledge/workflow-router-knowledge]] — 工作流路由系统
+- [[02-knowledge/mcp-plugins]] — MCP 插件生态
+- [[02-knowledge/zhipu-api-key-configuration]] — 智谱 AI 配置
+- [[02-knowledge/model-capabilities-comparison]] — AI 模型能力对比
+- [[02-knowledge/workflow-router-knowledge]] — 工作流路由系统

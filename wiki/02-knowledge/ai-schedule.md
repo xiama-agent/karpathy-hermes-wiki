@@ -46,4 +46,9 @@ last_updated: 2026-06-26
 
 ## 相关链接
 
-- [[schedule-protocol]]  # 调度协议
+- [[02-knowledge/workflow-router-knowledge]] — 工作流路由系统
+- [[02-knowledge/persistent-memory-tool-selection]] — 持久化记忆与工具选择指南
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/software-dev-closed-loop]] — 软件开发闭环方法论
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/tools-overview]] — 工具总览- [[schedule-protocol]]  # 调度协议

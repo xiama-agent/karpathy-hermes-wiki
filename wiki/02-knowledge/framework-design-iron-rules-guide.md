@@ -68,3 +68,5 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[00-core/triggers]] — 上级/相关页面
+- [[02-knowledge/software-dev-closed-loop]] — 软件开发闭环方法论
+- [[02-knowledge/boundary-analysis-checklist]] — 边界分析检查清单

@@ -1,0 +1,18 @@
+{"ts":"2026-06-27T19:28:44.508Z","status":"hit","terms":"开发,软件","wiki_ids":"software-dev-closed-loop.md"}
+{"ts":"2026-06-27T19:28:44.567Z","status":"miss","terms":"记忆系统,memory,v4","wiki_ids":""}
+{"ts":"2026-06-27T19:47:12.074Z","status":"hit","terms":"记忆系统,recall-log,Topic-Gate","wiki_ids":"SOUL.md|AGENTS.md|recall-log.js|recall-monitor.js"}
+{"ts":"2026-06-27T19:51:19.765Z","status":"miss","terms":"记忆系统,memory,缺陷,不完美,limitation","wiki_ids":"semantic-memory.md,core-iron-laws.md,identity.md,triggers.md"}
+{"ts":"2026-06-27T19:53:16.390Z","status":"hit","terms":"习惯,习性,内化,habit,behavior","wiki_ids":"preferences.md"}
+{"ts":"2026-06-27T19:54:02.692Z","status":"hit","terms":"session,session-log","wiki_ids":"core-iron-laws.md,session-2026-06-28-035320.md"}
+{"ts":"2026-06-27T19:55:21.227Z","status":"hit","terms":"session log,会话摘要,session-summary","wiki_ids":"core-iron-laws.md,session-2026-06-28-035320.md"}
+{"ts":"2026-06-27T19:57:03.823Z","status":"hit","terms":"记忆系统, karpathy, wiki 架构","wiki_ids":"00-core/core-iron-laws.md, INDEX.md"}
+{"ts":"2026-06-27T20:00:10.696Z","status":"miss","terms":"记忆系统缺陷, 记忆系统不完美","wiki_ids":""}
+{"ts":"2026-06-27T20:02:46.282Z","status":"hit","terms":"YANG 软件开发","wiki_ids":"02-knowledge/software-dev-closed-loop.md"}
+{"ts":"2026-06-27T20:04:30.269Z","status":"miss","terms":"模型替换, 模型切换, hermes-tool-independence","wiki_ids":"02-knowledge/hermes-tool-independence.md, 02-knowledge/tools-ai-integration-guide.md"}
+{"ts":"2026-06-27T20:07:05.183Z","status":"hit","terms":"云端服务器, 阿里云, SSH","wiki_ids":"02-knowledge/aliyun.md"}
+{"ts":"2026-06-27T20:12:42.033Z","status":"miss","terms":"成人内容,看片,强上,乱伦","wiki_ids":""}
+{"ts":"2026-06-28T05:31:00.112Z","status":"hit","terms":"记忆系统 memory系统 Karpathy 卡帕西","wiki_ids":"semantic-memory.md persistent-memory-tool-selection.md"}
+{"ts":"2026-06-28T05:34:17.355Z","status":"hit","terms":"Topic-Gate 知识检查","wiki_ids":"topic-gate-block-format.md"}
+{"ts":"2026-06-28T05:44:58.396Z","status":"miss","terms":"无","wiki_ids":"无"}
+{"ts":"2026-06-28T06:20:47.992Z","status":"miss","terms":"Claude Code 安装 版本","wiki_ids":""}
+{"ts":"2026-06-28T06:48:06.304Z","status":"miss","terms":"Mavis MiniMax M3 模型接入","wiki_ids":""}

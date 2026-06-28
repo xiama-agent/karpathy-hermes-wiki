@@ -47,3 +47,4 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/paths]] — 上级/相关页面
+- [[02-knowledge/paths-conventions]] — 路径命名约定

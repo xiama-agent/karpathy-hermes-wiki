@@ -101,3 +101,5 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[00-core/triggers]] — 上级/相关页面
+- [[02-knowledge/ai-schedule]] — AI 调度系统
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南

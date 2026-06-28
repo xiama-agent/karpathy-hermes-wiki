@@ -20,3 +20,5 @@ last_updated: 2026-06-26
 ## 相关链接
 - [[02-knowledge/tools-overview|tools-overview]] — 工具总览
 - [[02-knowledge/minimax-m3|minimax-m3]] — MiniMax M3
+- [[02-knowledge/model-capabilities-comparison|model-capabilities-comparison]] — AI 模型能力对比
+- [[02-knowledge/model-json-structure|model-json-structure]] — model.json 配置结构说明

@@ -118,3 +118,8 @@ last_updated: 2026-06-26
 
 ## 相关链接
 - [[02-knowledge/tools-overview]] — 上级/相关页面
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
+- [[02-knowledge/persistent-memory-tool-selection]] — 持久化记忆与工具选择指南
+- [[02-knowledge/workflow-router-knowledge]] — 工作流路由系统
+- [[02-knowledge/codex-cli-knowledge-base]] — Codex CLI 知识库
+- [[02-knowledge/tools-ai-integration-guide]] — 工具与 AI 模型集成指南
